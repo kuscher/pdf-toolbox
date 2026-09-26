@@ -100,6 +100,14 @@ final class Web {
     // Ghostscript is laid out for BentoPDF (gs.js and gs.wasm at the top);
     // PyMuPDF asks for the npm package's assets/ folder. Same files.
     if (path.startsWith("/wasm/gs/assets/")) path = "/wasm/gs/" + path.substring(16);
+    // Sign's viewer (pdfjs-viewer/sign-viewer.html) asks for pdf.js's data at
+    // ../web/, where the pdf.js distribution keeps it; BentoPDF ships it in
+    // pdfjs-viewer/. On a desktop the 404 goes unnoticed (pdf.js falls back
+    // to system Helvetica/Arial); in WebView text in PDFs without embedded
+    // fonts would not render at all.
+    for (String dir : new String[] {"standard_fonts/", "cmaps/", "iccs/"}) {
+      if (path.startsWith("/web/" + dir)) path = "/pdfjs-viewer/" + path.substring(5);
+    }
     AssetManager assets = context.getAssets();
     List<String> candidates = path.endsWith("/")
         ? List.of(path + "index.html")

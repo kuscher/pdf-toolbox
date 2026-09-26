@@ -17,6 +17,7 @@ tools/webapp.sh [--force]         # BentoPDF's air-gapped build, ~/.cache/bentob
 ./bb shot FILE [full]             # screenshot; view it before sharing
 ./bb share                        # executables/BentoBook-<v>.apk to the Googlebook's Download
 python3 tools/testfiles.py        # test PDFs and a .docx in test/
+python3 tools/survey.py [PAGE...]  # every PDF tool: compact layout, failed requests (devtools on)
 ```
 
 adb comes from VSCodeBook's setup; its server runs on a Unix socket. Never

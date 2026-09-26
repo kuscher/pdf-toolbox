@@ -12,6 +12,8 @@
 #   OCR_LANGS=eng,deu tools/webapp.sh --force
 #                              other OCR languages (Tesseract codes, see
 #                              BentoPDF's src/js/config/tesseract-languages.ts)
+#   EDITOR_FONTS=latin,arabic,hebrew,jp,kr,sc,tc tools/webapp.sh --force
+#                              the PDF Editor's fallback fonts (below)
 #
 # Needs Node with npm (build.sh fetch puts one in ~/.cache/bentobook/node).
 set -euo pipefail
@@ -21,6 +23,7 @@ VERSION=2.8.8
 COMMIT=f96cd4e5166f3d51393dfe9f3c440b5bb77802f1 # tag v2.8.8
 ORIGIN=https://appassets.androidplatform.net
 OCR_LANGS=${OCR_LANGS:-eng}
+EDITOR_FONTS=${EDITOR_FONTS:-latin,arabic,hebrew}
 CACHE=${BENTOBOOK_CACHE:-$HOME/.cache/bentobook}
 SRC=$CACHE/bentopdf-$VERSION
 AIRGAP=$CACHE/airgap-$VERSION-${OCR_LANGS//,/-}
@@ -47,6 +50,23 @@ if ! ls "$AIRGAP"/bentopdf-pymupdf-wasm-*.tgz >/dev/null 2>&1; then
     --ocr-languages "$OCR_LANGS" --output-dir "$AIRGAP" </dev/null
 fi
 
+# The PDF Editor (EmbedPDF) draws text in fonts a PDF doesn't embed with
+# fallback fonts it fetches from jsDelivr unless VITE_EMBEDPDF_FONTS_URL
+# says otherwise, and the air-gap script leaves them out; offline, its pages
+# stay blank. The files are the ones BentoPDF's src/js/config/editor-fonts.ts
+# names: latin (also Greek, Cyrillic, Vietnamese), arabic and hebrew by
+# default, under 1 MB together; jp, kr, sc and tc add several MB each.
+FONTS=$CACHE/embedpdf-fonts
+mkdir -p "$FONTS"
+EDITOR_FONT_FILES=()
+for pack in ${EDITOR_FONTS//,/ }; do
+  file=$(sed -nE "s/^ *$pack: '(fonts-$pack@[0-9.]+\/fonts\/[^']+)',?$/\1/p" src/js/config/editor-fonts.ts)
+  [[ -n $file ]] || { echo "no editor font pack '$pack' in editor-fonts.ts" >&2; exit 1; }
+  version=${file#*@}; tgz=$FONTS/embedpdf-fonts-$pack-${version%%/*}.tgz
+  [[ -f $tgz ]] || (cd "$FONTS" && npm pack -q "@embedpdf/${file%%/*}" >/dev/null)
+  EDITOR_FONT_FILES+=("$tgz:$file")
+done
+
 rm -rf dist
 SIMPLE_MODE=true COMPRESSION_MODE=o DISABLE_GITHUB_STARS=true SITE_URL=$ORIGIN \
 VITE_WASM_PYMUPDF_URL=$ORIGIN/wasm/pymupdf/ \
@@ -57,6 +77,7 @@ VITE_TESSERACT_CORE_URL=$ORIGIN/wasm/ocr/core \
 VITE_TESSERACT_LANG_URL=$ORIGIN/wasm/ocr/lang-data \
 VITE_TESSERACT_AVAILABLE_LANGUAGES=$OCR_LANGS \
 VITE_OCR_FONT_BASE_URL=$ORIGIN/wasm/ocr/fonts \
+VITE_EMBEDPDF_FONTS_URL=$ORIGIN/wasm/embedpdf \
 NODE_OPTIONS=--max-old-space-size=4096 \
   npm run build
 
@@ -75,6 +96,11 @@ tar xzf "$AIRGAP"/tesseract.js-core-*.tgz -C "$W/ocr/core" --strip-components=1
 tar xzf "$AIRGAP"/tesseract.js-[0-9]*.tgz -C "$W/ocr" --strip-components=2 package/dist/worker.min.js
 cp "$AIRGAP"/tesseract-langdata/*.traineddata.gz "$W/ocr/lang-data/"
 cp "$AIRGAP"/ocr-fonts/* "$W/ocr/fonts/"
+for entry in "${EDITOR_FONT_FILES[@]}"; do
+  file=${entry#*:}
+  mkdir -p "$W/embedpdf/${file%/*}"
+  tar xzf "${entry%%:*}" -O "package/fonts/${file##*/}" > "$W/embedpdf/$file"
+done
 cp LICENSE "$WEB.tmp/LICENSE-bentopdf.txt"
 echo "$VERSION" > "$WEB.tmp/bentopdf-version.txt"
 touch "$WEB.tmp/.complete"

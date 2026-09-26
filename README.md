@@ -31,9 +31,11 @@ Files to install it if Android asks. BentoBook needs no permissions.
   (PDF, images, Word, Excel, PowerPoint, OpenDocument, EPUB, email) to it.
   A bar says the file is waiting; open a tool and the file goes straight
   in.
-- **Tools with an editor** (Sign, PDF Editor, Crop, Form Filler and
-  others) move it to the top of the window once your file is in; scroll up
-  for the file card, and remove the file there to pick another.
+- **Once your file is in,** the tool's page folds its title and drop
+  area into a slim header: **← Tools**, the tool, your file, **Change
+  file** (or **Add files**) and **Details**, which shows the folded part
+  again. Editors (Sign, PDF Editor, Crop, Form Filler, Stamps and others)
+  fill the window, with their own toolbar and buttons in view.
 - **Results** are saved to your **Download** folder. A bar at the bottom
   shows the name, with **Open** (in your PDF viewer) and **Show** (in
   Files).
@@ -52,7 +54,9 @@ Files to install it if Android asks. BentoBook needs no permissions.
   SharedArrayBuffer. On older WebViews the other tools still work.
 - **Very large files** can exhaust WebView's memory. The app then reloads
   the tool list and says so.
-- **Size:** the APK is about 195 MB, mostly the engines: LibreOffice
+- **Long option forms** (Posterize, Edit Metadata) still scroll a little;
+  the header stays at the top.
+- **Size:** the APK is about 196 MB, mostly the engines: LibreOffice
   (78 MB), Python and PyMuPDF (41 MB), OCR (20 MB), Ghostscript (11 MB).
 
 ## Sharing it

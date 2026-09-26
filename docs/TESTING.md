@@ -6,7 +6,14 @@ with real text and a Word document). With DevTools on
 shared, `./bb debug open /TOOL` opens a tool, and `./bb cdp eval` can press
 its button (`document.getElementById('process-btn').click()`).
 
-## Checked on the Googlebook (2026-09-26, WebView 153, versions 0.1 and 0.2)
+`python3 tools/survey.py` drops a test PDF into each of the 79 PDF tool
+pages and reports the compact header, the page height against the window's
+and whether the tool's button is in view, plus every request that failed,
+from the page or its workers. The app has no INTERNET permission, so a URL
+off the app's origin in that list is a missing offline file. Run it after
+updating BentoPDF.
+
+## Checked on the Googlebook (2026-09-26, WebView 153, versions 0.1 to 0.3)
 
 | Check | Result |
 | --- | --- |
@@ -21,8 +28,12 @@ its button (`document.getElementById('process-btn').click()`).
 | Shared file → next tool | Merge, Word to PDF, OCR and the editor took it; the bar shows on the tool list |
 | Saved bar | "Saved … to Download" with Open and Show |
 | File picker | DocumentsUI opens with the input's filter (application/pdf) |
-| No INTERNET permission | the site loads; nothing needs the network |
-| Workspace fit (0.2) | Sign, PDF Editor, Crop, Form Filler: workspace at the top of the window, drop zone folded (Sign, Crop, Form Filler); removing the file restores it; Compress and OCR unchanged; Merge keeps its drop zone and still merges |
+| No INTERNET permission | the site loads; in 0.3's survey no request from any of the 79 PDF tools or their workers failed (0.2's PDF Editor asked jsDelivr for fonts) |
+| Sign (0.3) | the page's text renders (pdf.js standard fonts from the app); header, pdf.js toolbar, page and Save in one window |
+| PDF Editor (0.3) | pages render (EmbedPDF's fallback font from the app, not jsDelivr); tabs, toolbar and Download in one window |
+| Crop (0.3) | page centred with an 80% crop box after the resize; Crop & Download in view |
+| Compact header (0.3, tools/survey.py, window 1228x892) | 76 of the 79 PDF tools fold into the header, BentoPDF's top bar and the drop zone hidden; 72 end exactly at the window's bottom; Edit Metadata (27 px), PDF to Text (48 px, keeps its file list), Booklet (2 px) and Posterize (a long form) scroll a little; Edit PDF Text, Bookmarks and Watermark are full pages and keep BentoPDF's layout |
+| Details, remove file (0.3) | Details brings back the title and drop zone and Hide details folds them; removing the file restores the page (Crop, Merge, Compress) |
 
 ## For a person (not automatable here)
 
