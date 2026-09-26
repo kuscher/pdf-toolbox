@@ -163,6 +163,56 @@
     else watch();
   }
 
+  // 7. Tool pages stack a 256 px drop zone and the file card above the tool's
+  //    workspace (Sign's editor, the PDF Editor's viewer, sized 75vh), which
+  //    suits a big monitor but leaves the workspace below the fold in a laptop
+  //    window: the tool looks as if it still wants a file. Once a file is in
+  //    and a workspace shows up, fold the drop zone away (single-file tools;
+  //    multi-file ones keep it for adding more) and bring the workspace to the
+  //    top. Removing the file brings the drop zone back.
+  if (isTop) {
+    let fitted = null;
+    let queued = false;
+    const fit = () => {
+      queued = false;
+      const drop = document.getElementById('drop-zone');
+      if (!drop) return;
+      const input = drop.querySelector('input[type=file]');
+      const area = document.getElementById('file-display-area');
+      const loaded = area ? area.children.length > 0 : !!(input && input.files.length);
+      if (!loaded) {
+        if (fitted) {
+          drop.style.display = '';
+          fitted = null;
+        }
+        return;
+      }
+      if (fitted && fitted.isConnected && fitted.offsetHeight) return;
+      const below = drop.getBoundingClientRect().bottom - 1;
+      // Anywhere below the drop zone: Sign's editor sits outside the upload card.
+      const workspace = [...document.body.querySelectorAll('div, section, canvas, iframe')].find((e) =>
+        e.offsetHeight >= innerHeight * 0.5 && !e.contains(drop) && e.getBoundingClientRect().top >= below);
+      if (!workspace) return;
+      fitted = workspace;
+      if (input && !input.multiple) drop.style.display = 'none';
+      workspace.scrollIntoView({ block: 'start' });
+    };
+    const queue = () => {
+      if (!queued) {
+        queued = true;
+        setTimeout(fit, 100);
+      }
+    };
+    const start = () => {
+      if (!document.getElementById('drop-zone')) return;
+      new MutationObserver(queue).observe(document.body, {
+        subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'hidden', 'style'],
+      });
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true });
+    else start();
+  }
+
   // 6. Page colour for the window caption: the theme-color meta tag, else the
   //    background of the page's top edge.
   if (isTop) {

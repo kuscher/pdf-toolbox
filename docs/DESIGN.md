@@ -118,6 +118,17 @@ Injected at document start into every page of the app's origin, with a
   shim holds them as `File`s, shows a bar, and fills the first enabled file
   input whose `accept` matches (DataTransfer, then `input`/`change`
   events). The page answers `incoming.used` and the app forgets them.
+- **Tool workspaces.** 106 of the 110 tool pages stack a header, a 256 px
+  drop zone and the file card above the tool's workspace (Sign's editor, the
+  PDF Editor's viewer at 75vh, Crop, Form Filler), which leaves the workspace
+  below the fold in a laptop window; the tool looks as if it still wants a
+  file. That is BentoPDF's layout, not a WebView problem. Once
+  `#file-display-area` has a file and an element at least half the window
+  tall appears below the drop zone, the shim hides the drop zone
+  (single-file inputs only; multi-file tools keep it for adding more) and
+  scrolls that element to the top. Emptying the file card brings the drop
+  zone back. It uses a timeout, not requestAnimationFrame, which doesn't
+  run while the window is hidden.
 - **`window.print()`** (Markdown editor) goes to Android printing via
   `WebView.createPrintDocumentAdapter`.
 - **Standalone display mode** for `matchMedia('(display-mode: …)')`.

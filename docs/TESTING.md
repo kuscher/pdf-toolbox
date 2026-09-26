@@ -6,7 +6,7 @@ with real text and a Word document). With DevTools on
 shared, `./bb debug open /TOOL` opens a tool, and `./bb cdp eval` can press
 its button (`document.getElementById('process-btn').click()`).
 
-## Checked on the Googlebook (2026-09-26, WebView 153, version 0.1)
+## Checked on the Googlebook (2026-09-26, WebView 153, versions 0.1 and 0.2)
 
 | Check | Result |
 | --- | --- |
@@ -22,6 +22,7 @@ its button (`document.getElementById('process-btn').click()`).
 | Saved bar | "Saved … to Download" with Open and Show |
 | File picker | DocumentsUI opens with the input's filter (application/pdf) |
 | No INTERNET permission | the site loads; nothing needs the network |
+| Workspace fit (0.2) | Sign, PDF Editor, Crop, Form Filler: workspace at the top of the window, drop zone folded (Sign, Crop, Form Filler); removing the file restores it; Compress and OCR unchanged; Merge keeps its drop zone and still merges |
 
 ## For a person (not automatable here)
 

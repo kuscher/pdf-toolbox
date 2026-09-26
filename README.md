@@ -31,6 +31,9 @@ Files to install it if Android asks. BentoBook needs no permissions.
   (PDF, images, Word, Excel, PowerPoint, OpenDocument, EPUB, email) to it.
   A bar says the file is waiting; open a tool and the file goes straight
   in.
+- **Tools with an editor** (Sign, PDF Editor, Crop, Form Filler and
+  others) move it to the top of the window once your file is in; scroll up
+  for the file card, and remove the file there to pick another.
 - **Results** are saved to your **Download** folder. A bar at the bottom
   shows the name, with **Open** (in your PDF viewer) and **Show** (in
   Files).
