@@ -33,6 +33,7 @@ updating BentoPDF.
 | PDF Editor (0.3) | pages render (EmbedPDF's fallback font from the app, not jsDelivr); tabs, toolbar and Download in one window |
 | Crop (0.3) | page centred with an 80% crop box after the resize; Crop & Download in view |
 | Compact header (0.3, tools/survey.py, window 1228x892) | 76 of the 79 PDF tools fold into the header, BentoPDF's top bar and the drop zone hidden; 72 end exactly at the window's bottom; Edit Metadata (27 px), PDF to Text (48 px, keeps its file list), Booklet (2 px) and Posterize (a long form) scroll a little; Edit PDF Text, Bookmarks and Watermark are full pages and keep BentoPDF's layout |
+| Live resize (0.4) | `am compat enable ENABLE_FLUID_RESIZING` accepted on the release build and kept across an app update; SystemUI's log shows which positioner a drag used |
 | Details, remove file (0.3) | Details brings back the title and drop zone and Hide details folds them; removing the file restores the page (Crop, Merge, Compress) |
 
 ## For a person (not automatable here)
@@ -43,5 +44,9 @@ updating BentoPDF.
 - [ ] Open and Show on the saved bar.
 - [ ] Print from the Markdown to PDF editor.
 - [ ] Back gesture/key goes back a page; the window resizes cleanly.
+- [ ] With `./bb live-resize` on: drag a window edge; the page follows
+      live, no veil (`adb logcat | grep TaskPositioner` names
+      `ResizeTaskPositioner`, not `MultiDisplayVeiledResizeTaskPositioner`).
+      Try it on Sign and Crop too.
 - [ ] A large scanned PDF (50+ pages) through OCR and Compress: time and
       memory.

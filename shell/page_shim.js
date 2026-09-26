@@ -429,11 +429,14 @@
       }
     };
     // Registered before any viewer's own listener, so it sees the crops
-    // before Cropper.js rescales them.
+    // before Cropper.js rescales them. A live window resize sends a stream
+    // of these: keep the crops from before the first one, and refit at most
+    // every 50 ms (the pending refit runs after the latest event).
+    let refit = 0;
     window.addEventListener('resize', () => {
       if (!state || state.fitting) return;
-      state.crops = crops(state.flex);
-      setTimeout(fit, 50);
+      if (!state.crops) state.crops = crops(state.flex);
+      if (!refit) refit = setTimeout(() => { refit = 0; fit(); }, 50);
     });
     const start = () => {
       if (!document.getElementById('drop-zone')) return;

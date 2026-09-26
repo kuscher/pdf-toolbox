@@ -16,6 +16,7 @@ tools/webapp.sh [--force]         # BentoPDF's air-gapped build, ~/.cache/bentob
 ./bb cdp targets | eval JS        # after ./bb debug devtools on
 ./bb shot FILE [full]             # screenshot; view it before sharing
 ./bb share                        # executables/BentoBook-<v>.apk to the Googlebook's Download
+./bb live-resize [on|off|status]  # Android's per-app switch: live window resizing, no veil
 python3 tools/testfiles.py        # test PDFs and a .docx in test/
 python3 tools/survey.py [PAGE...]  # every PDF tool: compact layout, failed requests (devtools on)
 ```

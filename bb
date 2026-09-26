@@ -10,6 +10,9 @@
 #   ./bb share                copy the APK to the Googlebook's Download folder
 #   ./bb incoming FILE...     hand files to the app as if shared to it (they are
 #                             saved to Download/ first; debug builds of the flow)
+#   ./bb live-resize [on|off|status]
+#                             resize the window live instead of under a veil
+#                             (Android's per-app ENABLE_FLUID_RESIZING switch)
 #
 # adb's server listens on a Unix socket, not tcp:5037: the Terminal forwards
 # every TCP port in the VM to Android, where any app could use it.
@@ -84,6 +87,23 @@ case ${1:-} in
       append=true
     done ;;
   debug) shift; adb_up; debug "$@" ;;
+  live-resize)
+    # Desktop windowing shows a veil (icon on a plain colour) while a window is
+    # resized, unless compat change ENABLE_FLUID_RESIZING is on for the app;
+    # Google sets it for its own apps. It is @Overridable, so the shell may set
+    # it on a release build too. It survives app updates; the platform saves
+    # overrides in /data/misc/appcompat, so reboots should keep it as well.
+    # SystemUI picks veil or live when it decorates a window, so it applies to
+    # windows opened afterwards.
+    adb_up
+    case ${2:-on} in
+      on) "${A[@]}" shell am compat enable ENABLE_FLUID_RESIZING $PKG ;;
+      off) "${A[@]}" shell am compat reset ENABLE_FLUID_RESIZING $PKG ;;
+      status)
+        "${A[@]}" shell dumpsys platform_compat | grep 'name=ENABLE_FLUID_RESIZING;' |
+          grep -q "[{ ]$PKG=true" && echo on || echo off ;;
+      *) echo "usage: ./bb live-resize [on|off|status]" >&2; exit 2 ;;
+    esac ;;
   cdp) shift; adb_up; python3 tools/cdp.py "$@" ;;
   shot)
     adb_up

@@ -175,6 +175,23 @@ Injected at document start into every page of the app's origin, with a
   transparent over the root view's colour, which follows the page's top
   edge. The WebView is padded below the caption (caption, system bar and
   cutout insets), so a tool's controls never sit under the window buttons.
+- **Live resizing.** In desktop windowing, SystemUI resizes a window under
+  a veil (the app's icon on a plain colour) and lets the app lay out once,
+  at the end of the drag. Checked in this Googlebook's SystemUI
+  (`DesktopModeWindowDecorViewModel.createWindowDecoration`): a window
+  gets the veiled positioner only when veiled resizing is on and compat
+  change `ENABLE_FLUID_RESIZING` (460405642) is off for its package;
+  otherwise `ResizeTaskPositioner` resizes it live. The change is disabled
+  by default and `@Overridable`; Google turns it on for Chrome, Gmail, Docs
+  and a few more through the `app_compat_overrides` device config. There is
+  no manifest property for it. `./bb live-resize` sets the override for
+  BentoBook over adb (`am compat enable`, allowed on a release build for an
+  overridable change); it survives app updates. SystemUI chooses when it
+  decorates a window, so it applies to windows opened afterwards, and its
+  log names the positioner (`adb logcat | grep TaskPositioner`). During a
+  live drag the page gets a stream of resize events; the shim refits at
+  most every 50 ms, and the window background matches the page's, so an
+  edge the WebView hasn't drawn yet doesn't flash.
 - Back uses `OnBackInvokedCallback` (predictive back at targetSdk 37),
   registered only while the WebView can go back.
 - If the renderer dies (a huge PDF), the app replaces the WebView and reloads

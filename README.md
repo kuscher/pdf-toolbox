@@ -23,6 +23,13 @@ app has no internet permission at all: your files can't leave the Googlebook.
 Open `BentoBook-<version>.apk` from the Download folder in Files and allow
 Files to install it if Android asks. BentoBook needs no permissions.
 
+**Live window resizing** (optional, needs a computer with adb once):
+Android normally hides a window behind a veil with its icon while you
+resize it. With Wireless debugging paired, run
+`adb shell am compat enable ENABLE_FLUID_RESIZING local.bentobook` (or
+`./bb live-resize` from this repo) and reopen BentoBook: the page then
+follows the window edge as you drag. `am compat reset` undoes it.
+
 ## Using it
 
 - **Pick a tool, then a file:** click the drop area and choose files in
