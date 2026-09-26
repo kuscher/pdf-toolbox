@@ -1,0 +1,6 @@
+build/
+executables/
+*.apk
+*.idsig
+test/
+__pycache__/
