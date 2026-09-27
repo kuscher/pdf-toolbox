@@ -95,6 +95,8 @@ jobs:
           echo "device profile: ${DEVICE:-default}"
           echo no | "$SDKM/avdmanager" create avd -n desktop -k "$IMAGE" -p "$ANDROID_AVD_HOME/desktop.avd" \
             ${DEVICE:+-d "$DEVICE"}
+          # Room for a 188 MB app (the default data partition is too small for it).
+          echo 'disk.dataPartition.size=8G' >> "$ANDROID_AVD_HOME/desktop.avd/config.ini"
           # A Googlebook-sized screen: the desktop profile's 3840x2160 is heavy for
           # software rendering.
           if [[ '${{ matrix.device }}' == desktop_* ]]; then
