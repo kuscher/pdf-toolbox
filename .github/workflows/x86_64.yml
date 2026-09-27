@@ -37,16 +37,13 @@ jobs:
             device: pixel_tablet
             gpu: swiftshader_indirect
             experimental: false
-          # The desktop image is closer to a Googlebook, but with software
-          # rendering its SurfaceFlinger aborts when desktop mode samples the
-          # screen ("!...hasReadColorBufferDma"), restarting Android every
-          # minute; guest-side rendering may avoid that.
+          # The desktop image, closer to a Googlebook.
           - id: android-17-desktop
             name: Android 17 desktop (x86_64, experimental)
             image: system-images;android-37.0;android-desktop;x86_64
             channel: 2
             device: desktop_medium
-            gpu: guest
+            gpu: swiftshader_indirect
             experimental: true
     continue-on-error: ${{ matrix.experimental }}
     env:
@@ -112,8 +109,12 @@ jobs:
             printf 'hw.lcd.width=1920\nhw.lcd.height=1200\nhw.lcd.density=160\n' >> "$ANDROID_AVD_HOME/desktop.avd/config.ini"
           fi
           "$EMU" -list-avds
-          "$EMU" -avd desktop -no-window -no-audio -no-boot-anim -no-snapshot \
-            -gpu ${{ matrix.gpu }} -memory 4096 > emulator.log 2>&1 &
+          # Without GLAsyncSwap the host doesn't offer DMA read-back of colour
+          # buffers, which the API 37 guests' software path asserts against:
+          # SurfaceFlinger aborted ("!...hasReadColorBufferDma") whenever the
+          # screen was sampled, restarting Android every minute.
+          "$EMU" -avd desktop -no-window -no-audio -no-boot-anim -no-snapshot -no-metrics \
+            -gpu ${{ matrix.gpu }} -feature -GLAsyncSwap -memory 4096 > emulator.log 2>&1 &
           timeout 300 adb wait-for-device || { tail -40 emulator.log; exit 1; }
           timeout 900 bash -c 'until [[ $(adb shell getprop sys.boot_completed 2>/dev/null | tr -d "\r") == 1 ]]; do sleep 5; done' ||
             { tail -40 emulator.log; exit 1; }
