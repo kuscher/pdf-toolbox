@@ -1,5 +1,5 @@
 # BentoBook on x86_64: builds the APK on an x86_64 runner and runs the engine
-# smoke test (tools/smoke.py) in Google's x86_64 Android 17 desktop emulator.
+# smoke test (tools/smoke.py) in Google's x86_64 Android 17 emulator images.
 # Three of the five Googlebooks have Intel chips; BentoBook is developed and
 # tested by hand on an Arm one. The APK has no native code, so it is the same
 # file on both: this checks that it builds on an x86_64 machine and that the
@@ -22,11 +22,35 @@ concurrency:
 
 jobs:
   test:
-    name: Build and smoke-test on x86_64
+    name: ${{ matrix.name }}
     runs-on: ubuntu-24.04
     timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Android 17's standard x86_64 image: the check that must pass.
+          - id: android-17
+            name: Android 17 (x86_64)
+            image: system-images;android-37.0;google_apis;x86_64
+            channel: 0
+            device: pixel_tablet
+            gpu: swiftshader_indirect
+            experimental: false
+          # The desktop image is closer to a Googlebook, but with software
+          # rendering its SurfaceFlinger aborts when desktop mode samples the
+          # screen ("!...hasReadColorBufferDma"), restarting Android every
+          # minute; guest-side rendering may avoid that.
+          - id: android-17-desktop
+            name: Android 17 desktop (x86_64, experimental)
+            image: system-images;android-37.0;android-desktop;x86_64
+            channel: 2
+            device: desktop_medium
+            gpu: guest
+            experimental: true
+    continue-on-error: ${{ matrix.experimental }}
     env:
-      IMAGE: system-images;android-37.0;android-desktop;x86_64
+      IMAGE: ${{ matrix.image }}
     steps:
       - uses: actions/checkout@v7
 
@@ -48,7 +72,7 @@ jobs:
           ./build.sh fetch
           ./build.sh
 
-      - name: Start the emulator (Android 17 desktop, x86_64)
+      - name: Start the emulator
         run: |
           echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
           export PATH=$ANDROID_HOME/platform-tools:$PATH
@@ -64,21 +88,21 @@ jobs:
           EMU=$ANDROID_HOME/emulator/emulator
           yes | "$SDKM/sdkmanager" --licenses > /dev/null || true
           # The Android 17 desktop images are in the SDK's dev channel (2).
-          "$SDKM/sdkmanager" --channel=2 --install emulator platform-tools "$IMAGE" > /dev/null
+          "$SDKM/sdkmanager" --channel=${{ matrix.channel }} --install emulator platform-tools "$IMAGE" > /dev/null
           "$EMU" -accel-check || true
           "$SDKM/avdmanager" list device -c > devices.txt
-          DEVICE=$(grep -x desktop_medium devices.txt || grep -m1 -i desktop devices.txt || true)
+          DEVICE=$(grep -x '${{ matrix.device }}' devices.txt || true)
           echo "device profile: ${DEVICE:-default}"
           echo no | "$SDKM/avdmanager" create avd -n desktop -k "$IMAGE" -p "$ANDROID_AVD_HOME/desktop.avd" \
             ${DEVICE:+-d "$DEVICE"}
-          # A Googlebook-sized screen (the profile's 3840x2160 is heavy for software
-          # rendering), and no DMA read-back of colour buffers: SurfaceFlinger's
-          # region sampling (desktop mode samples the screen) aborts on it with
-          # swiftshader ("Assertion failed: !...hasReadColorBufferDma").
-          printf 'hw.lcd.width=1920\nhw.lcd.height=1200\nhw.lcd.density=160\n' >> "$ANDROID_AVD_HOME/desktop.avd/config.ini"
+          # A Googlebook-sized screen: the desktop profile's 3840x2160 is heavy for
+          # software rendering.
+          if [[ '${{ matrix.device }}' == desktop_* ]]; then
+            printf 'hw.lcd.width=1920\nhw.lcd.height=1200\nhw.lcd.density=160\n' >> "$ANDROID_AVD_HOME/desktop.avd/config.ini"
+          fi
           "$EMU" -list-avds
           "$EMU" -avd desktop -no-window -no-audio -no-boot-anim -no-snapshot \
-            -gpu swiftshader_indirect -feature -ReadColorBufferDma -memory 4096 > emulator.log 2>&1 &
+            -gpu ${{ matrix.gpu }} -memory 4096 > emulator.log 2>&1 &
           timeout 300 adb wait-for-device || { tail -40 emulator.log; exit 1; }
           timeout 900 bash -c 'until [[ $(adb shell getprop sys.boot_completed 2>/dev/null | tr -d "\r") == 1 ]]; do sleep 5; done' ||
             { tail -40 emulator.log; exit 1; }
@@ -105,7 +129,7 @@ jobs:
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: x86_64-emulator
+          name: ${{ matrix.id }}-emulator
           path: |
             screen.png
             logcat.txt
