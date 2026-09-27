@@ -153,7 +153,9 @@ up under it.
 - **Search** (Ctrl+K): each word typed has to start a word of a tool's name
   ("sign" finds Sign PDF and Digital Signature; "word" doesn't find Remove
   Password); when no name matches, the description and category count too
-  ("secure", "convert"). The arrow keys and Enter pick.
+  ("secure", "convert"). Popular isn't searched, as its tools are in their own
+  categories too, except a tool that is only there (the Workflow Builder). The
+  arrow keys and Enter pick.
 - **In the frame** (page shim, section 8): BentoPDF's top bar, its
   breadcrumb, the tools' "Back to Tools" and the PDF Multi Tool's header (the
   brand and Close) are hidden, and so are the compact header's "← Tools" and

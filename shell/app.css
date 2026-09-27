@@ -168,7 +168,7 @@ button { font: inherit; color: inherit; }
 .foot { flex: none; padding: 6px 8px 10px; border-top: 1px solid var(--line); }
 
 /* Searching: one flat list of matches. */
-body.searching .group.recent, body.searching .group.popular, body.searching .item.home { display: none; }
+body.searching .group.recent, body.searching .item.home { display: none; }
 body.searching .group .items { display: block !important; }
 body.searching .item.miss, body.searching .group.miss { display: none; }
 body.searching.no-match .empty { display: block; }

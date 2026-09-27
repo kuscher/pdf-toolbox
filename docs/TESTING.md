@@ -30,7 +30,7 @@ tools in the sidebar's frame (1100x788 px in the 1359x876 px window).
 | Layout survey (tools/survey.py) | 79 PDF tools: 76 fold into the compact header, 70 end exactly at the frame's bottom, none is wider than the frame, no request failed. Add Page Labels, Bates Numbering, Edit Metadata, Booklet, PDF to CBZ, PDF to Text and Posterize are long forms that scroll (836 to 1,188 px); Add Watermark and Edit Bookmarks are full pages that scroll |
 | Full-height tools | the PDF Multi Tool fills the frame with two PDFs (toolbar at the top, its own header hidden); the Workflow Builder, Edit PDF Text, the PDF Editor, Sign and Crop fit it with their buttons in view |
 | Sidebar | 7 categories and 118 tools from BentoPDF's tools.ts; Recent keeps the last five; the marked tool, the window title and the URL's hash follow the frame |
-| Search | "sign" finds Sign PDF, Digital Signature and Validate Signature, "word" Word to PDF and PDF to Word only; Enter opens the first match and moves the focus into the tool |
+| Search | "sign" finds Sign PDF, Digital Signature and Validate Signature, "word" Word to PDF and PDF to Word only, "workflow" the Workflow Builder (listed only under Popular); Enter opens the first match and moves the focus into the tool |
 | Rail, narrow window | Ctrl+B and the button fold the sidebar into the icon rail, with flyouts and names on hover; in an 820 px viewport (CDP emulation) the rail shows and the button opens the sidebar over the tool |
 | Keys in a tool | Ctrl+K and Ctrl+B pressed with the focus in the tool's page reach the sidebar (CDP key events) |
 | Back | back from Compress returns to Merge, then to the tool list, and the sidebar follows |

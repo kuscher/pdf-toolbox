@@ -72,6 +72,10 @@
     c.tools.map((t) => item({ ...t, category: c.name })), c.name === 'Popular Tools' ? 'popular' : ''));
   const empty = el('div', { className: 'empty', textContent: 'No tool matches.' });
   list.append(home, recentGroup, ...groups, empty);
+  // Search skips Popular, whose tools are in their own categories too; a tool
+  // that is only in Popular (the Workflow Builder) is searched there.
+  const elsewhere = new Set(categories.filter((c) => c.name !== 'Popular Tools').flatMap((c) => c.tools.map((t) => t.id)));
+  for (const a of list.querySelectorAll('.group.popular .item')) a.classList.toggle('solo', !elsewhere.has(a.dataset.id));
 
   // ---- Which tool is open ----
 
@@ -247,7 +251,8 @@
   // ---- Search ----
 
   let selected = -1;
-  const matches = () => [...list.querySelectorAll('.group:not(.recent):not(.popular) .item:not(.miss)')];
+  const searchable = (g) => [...g.querySelectorAll(g.classList.contains('popular') ? '.item.solo' : '.item')];
+  const matches = () => [...list.querySelectorAll('.group:not(.recent) .item:not(.miss)')];
   const select = (i) => {
     const items = matches();
     items[selected]?.classList.remove('selected');
@@ -264,18 +269,17 @@
     const typed = words(q.value);
     const searching = typed.length > 0;
     body.classList.toggle('searching', searching);
-    const items = groups.filter((g) => !g.classList.contains('popular')).flatMap((g) => [...g.querySelectorAll('.item')]);
     const hits = (a, more) => {
       const own = (more ? `${a.dataset.words} ${a.dataset.more}` : a.dataset.words).split(' ');
       return typed.every((w) => own.some((o) => o.startsWith(w)));
     };
-    const byName = items.some((a) => hits(a, false));
+    const byName = groups.some((g) => searchable(g).some((a) => hits(a, false)));
     let any = false;
     for (const g of groups) {
-      if (g.classList.contains('popular')) continue;
+      const own = searchable(g);
       let hit = false;
       for (const a of g.querySelectorAll('.item')) {
-        const ok = hits(a, !byName);
+        const ok = own.includes(a) && hits(a, !byName);
         a.classList.toggle('miss', searching && !ok);
         a.classList.remove('selected');
         hit = hit || ok;
