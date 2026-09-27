@@ -71,17 +71,25 @@ jobs:
           echo "device profile: ${DEVICE:-default}"
           echo no | "$SDKM/avdmanager" create avd -n desktop -k "$IMAGE" -p "$ANDROID_AVD_HOME/desktop.avd" \
             ${DEVICE:+-d "$DEVICE"}
+          # A Googlebook-sized screen (the profile's 3840x2160 is heavy for software
+          # rendering), and no DMA read-back of colour buffers: SurfaceFlinger's
+          # region sampling (desktop mode samples the screen) aborts on it with
+          # swiftshader ("Assertion failed: !...hasReadColorBufferDma").
+          printf 'hw.lcd.width=1920\nhw.lcd.height=1200\nhw.lcd.density=160\n' >> "$ANDROID_AVD_HOME/desktop.avd/config.ini"
           "$EMU" -list-avds
           "$EMU" -avd desktop -no-window -no-audio -no-boot-anim -no-snapshot \
-            -gpu swiftshader_indirect -memory 4096 > emulator.log 2>&1 &
+            -gpu swiftshader_indirect -feature -ReadColorBufferDma -memory 4096 > emulator.log 2>&1 &
           timeout 300 adb wait-for-device || { tail -40 emulator.log; exit 1; }
           timeout 900 bash -c 'until [[ $(adb shell getprop sys.boot_completed 2>/dev/null | tr -d "\r") == 1 ]]; do sleep 5; done' ||
             { tail -40 emulator.log; exit 1; }
           adb shell getprop ro.product.cpu.abilist
+          # The package manager answers a little after boot completes.
+          timeout 300 bash -c 'until adb shell pm path android >/dev/null 2>&1; do sleep 5; done'
+          sleep 30
 
       - name: Install BentoBook
         run: |
-          adb install -r build/BentoBook.apk
+          for try in 1 2 3; do adb install -r build/BentoBook.apk && break; [[ $try == 3 ]] && exit 1; sleep 30; done
           adb shell dumpsys webviewupdate | grep -m1 "Current WebView package"
 
       - name: Smoke test
