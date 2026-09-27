@@ -49,6 +49,7 @@ CHECKS = {
     "word": ("/word-to-pdf", [DOCX], "LibreOffice", ".pdf", None, None),
 }
 DOWNLOADS = "content://media/external/downloads"
+PATIENCE = 60  # seconds to wait for a page, a button or a DevTools answer; --slow raises it
 
 
 def adb(*args, check=True):
@@ -70,7 +71,8 @@ class Page:
             sys.exit("no WebView page to drive: is BentoBook open?")
         self.ws = cdp.Socket(re.search(r"(/devtools/.*)$", cdp.pick(pages, None)["webSocketDebuggerUrl"])[1])
 
-    def eval(self, js, timeout=60):
+    def eval(self, js, timeout=None):
+        timeout = timeout or PATIENCE
         r = self.ws.call("Runtime.evaluate", timeout=timeout, expression=js, awaitPromise=True,
                          returnByValue=True, userGesture=True)
         if "exceptionDetails" in r:
@@ -93,7 +95,7 @@ class Page:
         self.ws.call("Page.navigate", url=ORIGIN + path)
         time.sleep(1)
         self.wait("document.readyState === 'complete' && !!document.querySelector('#drop-zone input[type=file]')",
-                  60, f"{path} did not load")
+                  PATIENCE, f"{path} did not load")
 
     def give(self, names):
         files = [{"name": n, "b64": base64.b64encode(open(os.path.join(TEST, n), "rb").read()).decode(),
@@ -114,13 +116,13 @@ class Page:
     def settle(self, count):
         """Waits for the page to list the files it was given: a tool's button
         is live before the page has read them, and pressing it then does
-        nothing."""
+        nothing (Merge: "No files or pages selected")."""
         try:
             self.wait("(() => { const l = document.getElementById('file-list')"
                       " || document.getElementById('file-display-area');"
-                      " return !l || l.children.length >= %d; })()" % count, 30, "")
+                      " return !!l && l.children.length >= %d; })()" % count, PATIENCE, "")
         except TimeoutError:
-            pass
+            pass  # a page without a file list
         time.sleep(1.5)
 
     def press(self, button_id, timeout, what):
@@ -161,7 +163,7 @@ def run(page, name, isolated, timeout):
     page.settle(len(files))
     if setup:
         page.eval(setup)
-    page.press("process-btn", 60, "the tool's button never came up")
+    page.press("process-btn", PATIENCE, "the tool's button never came up")
     if then:
         page.press(then, timeout, f"#{then} never came up")
     end = start + timeout
@@ -181,7 +183,12 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("checks", nargs="*", choices=[[]] + list(CHECKS), metavar="CHECK", help=", ".join(CHECKS))
     ap.add_argument("--timeout", type=int, default=240, help="seconds per check (default 240)")
+    ap.add_argument("--slow", action="store_true",
+                    help="a slow device (an emulator in CI): wait up to 5 minutes for pages and buttons")
     args = ap.parse_args()
+    global PATIENCE
+    if args.slow:
+        PATIENCE = 300
     for n in (A, B, DOCX):
         if not os.path.isfile(os.path.join(TEST, n)):
             subprocess.run([sys.executable, os.path.join(ROOT, "tools", "testfiles.py")], check=True,

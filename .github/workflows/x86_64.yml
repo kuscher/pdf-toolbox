@@ -24,7 +24,7 @@ jobs:
   test:
     name: ${{ matrix.name }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 90
+    timeout-minutes: 150
     strategy:
       fail-fast: false
       matrix:
@@ -38,7 +38,9 @@ jobs:
           # this checks, the WebView and the engines on an x86_64 CPU, is the same.
           - id: android-16
             name: Android 16 (x86_64)
-            image: system-images;android-36;google_apis;x86_64
+            # The plain AOSP image: without Google's apps and services the
+            # 2-CPU runner's emulator has time left for BentoBook.
+            image: system-images;android-36;default;x86_64
             channel: 0
             device: pixel_tablet
             gpu: swiftshader_indirect
@@ -123,7 +125,7 @@ jobs:
           adb shell dumpsys webviewupdate | grep -m1 "Current WebView package"
 
       - name: Smoke test
-        run: python3 tools/smoke.py --timeout 600
+        run: python3 tools/smoke.py --slow --timeout 900
 
       - name: Screenshot and logs
         if: always()
