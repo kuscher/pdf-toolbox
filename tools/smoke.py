@@ -37,16 +37,20 @@ PKG = "local.bentobook"
 A, B, DOCX = "BentoBook Test A.pdf", "BentoBook Test B.pdf", "BentoBook Test Letter.docx"
 CHECKS = {
     # name: (page, input files, engines, output name suffix, button to press
-    # after processing, script to run before pressing the tool's button)
-    "merge": ("/merge-pdf", [A, B], "pdf-lib, CoherentPDF", ".pdf", None, None),
-    "compress": ("/compress-pdf", [A], "PyMuPDF", ".pdf", None, None),
-    "pdf-to-docx": ("/pdf-to-docx", [A], "PyMuPDF, pdf2docx, Ghostscript", ".docx", None, None),
-    "pdfa": ("/pdf-to-pdfa", [A], "Ghostscript", ".pdf", None, None),
+    # after processing, script that says the page has read the files, script
+    # to run then, before pressing the tool's button)
+    # Merge reads its files from the list items it adds once it has read them.
+    "merge": ("/merge-pdf", [A, B], "pdf-lib, CoherentPDF", ".pdf", None,
+              "document.querySelectorAll('#file-list [data-file-name]').length >= 2", None),
+    "compress": ("/compress-pdf", [A], "PyMuPDF", ".pdf", None, None, None),
+    "pdf-to-docx": ("/pdf-to-docx", [A], "PyMuPDF, pdf2docx, Ghostscript", ".docx", None, None, None),
+    "pdfa": ("/pdf-to-pdfa", [A], "Ghostscript", ".pdf", None, None, None),
     # OCR starts once a language is ticked; English is the one the app ships.
     "ocr": ("/ocr-pdf", [A], "Tesseract", ".pdf", "download-searchable-pdf",
+            "!!document.querySelector('.lang-checkbox[value=eng]')",
             "const c = document.querySelector('.lang-checkbox[value=eng]');"
             " c.checked = true; c.dispatchEvent(new Event('change', { bubbles: true })); true"),
-    "word": ("/word-to-pdf", [DOCX], "LibreOffice", ".pdf", None, None),
+    "word": ("/word-to-pdf", [DOCX], "LibreOffice", ".pdf", None, None, None),
 }
 DOWNLOADS = "content://media/external/downloads"
 PATIENCE = 60  # seconds to wait for a page, a button or a DevTools answer; --slow raises it
@@ -153,7 +157,7 @@ def delete(rows):
 
 
 def run(page, name, isolated, timeout):
-    path, files, engines, suffix, then, setup = CHECKS[name]
+    path, files, engines, suffix, then, ready, setup = CHECKS[name]
     if name == "word" and not isolated:
         return "skipped", "no cross-origin isolation in this WebView (it needs a newer one)"
     since = int(shell("date +%s").strip()) - 1
@@ -161,6 +165,8 @@ def run(page, name, isolated, timeout):
     page.open(path)
     page.give(files)
     page.settle(len(files))
+    if ready:
+        page.wait(ready, PATIENCE, f"{path} never got ready")
     if setup:
         page.eval(setup)
     page.press("process-btn", PATIENCE, "the tool's button never came up")
