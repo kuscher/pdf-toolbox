@@ -1,7 +1,7 @@
 Third-party code bundled in pdfjs-annotation-extension.js
-(pdfjs-annotation-viewer/web/pdfjs-annotation-extension/pdfjs-annotation-extension.js in BentoBook)
+(pdfjs-annotation-viewer/web/pdfjs-annotation-extension/pdfjs-annotation-extension.js in PDF Toolbox, formerly BentoBook)
 
-RECONSTRUCTED NOTICE, prepared for BentoBook's license audit. The shipped file is the
+RECONSTRUCTED NOTICE, prepared for PDF Toolbox's (then BentoBook's) license audit. The shipped file is the
 upstream release build of Laomai-codefee/pdfjs-annotation-extension v2.2.0 (webpack; its
 pdfjs-annotation-extension.js.LICENSE.txt was not distributed upstream or by BentoPDF),
 patched by BentoPDF (two handwriting-font entries and the default stamp images).

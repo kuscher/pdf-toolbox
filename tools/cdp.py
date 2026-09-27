@@ -4,7 +4,7 @@
 
 The WebView's DevTools socket is forwarded to a unix socket in the VM (not a
 TCP port, which the Linux Terminal app would try to forward to the host).
-Inspection has to be switched on in the app first: `./bb debug devtools on`.
+Inspection has to be switched on in the app first: `./ptb debug devtools on`.
 
   cdp.py targets                  list pages (index, url, title)
   cdp.py eval JS [-t N|substr]    evaluate JS in a page, print the JSON result
@@ -24,10 +24,10 @@ import subprocess
 import sys
 import time
 
-SERIAL = os.environ.get("ADB_SERIAL", "")  # ./bb sets it
-PKG = os.environ.get("CDP_PKG", "local.bentobook")
+SERIAL = os.environ.get("ADB_SERIAL", "")  # ./ptb sets it
+PKG = os.environ.get("CDP_PKG", "local.pdftoolbox")
 LOCAL = os.environ.get("CDP_SOCK") or os.path.join(
-    os.environ.get("XDG_RUNTIME_DIR") or os.environ.get("TMPDIR") or "/tmp", f"bentobook-devtools-{os.getuid()}.sock")
+    os.environ.get("XDG_RUNTIME_DIR") or os.environ.get("TMPDIR") or "/tmp", f"pdftoolbox-devtools-{os.getuid()}.sock")
 
 
 def adb(*args):
@@ -40,7 +40,7 @@ def connect():
         sys.exit(f"{PKG} is not running")
     name = f"webview_devtools_remote_{pid[0]}"
     if name not in adb("shell", "cat", "/proc/net/unix"):
-        sys.exit(f"no {name}: turn inspection on with `./bb debug devtools on`")
+        sys.exit(f"no {name}: turn inspection on with `./ptb debug devtools on`")
     os.makedirs(os.path.dirname(LOCAL), exist_ok=True)
     unforward()  # a run killed midway leaves adb listening on a deleted socket
     if os.path.exists(LOCAL):

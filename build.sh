@@ -1,25 +1,25 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: MIT
-# Builds and signs BentoBook without Gradle: Debian's aapt2 for resources,
+# Builds and signs PDF Toolbox without Gradle: Debian's aapt2 for resources,
 # javac for the code, Google's D8 for dex, then zipalign and apksigner from
 # Debian or Ubuntu, on x86_64 or arm64 (sudo apt install aapt zipalign
 # apksigner default-jdk-headless git python3 curl).
 #
 #   ./build.sh fetch   once per machine: the Android bits Debian doesn't
 #                      package (~/.cache/android) and a Node toolchain with
-#                      npm for this machine's CPU (~/.cache/bentobook/node)
-#   ./build.sh         builds build/BentoBook.apk; the first run also builds
+#                      npm for this machine's CPU (~/.cache/pdf-toolbox/node)
+#   ./build.sh         builds build/PDFToolbox.apk; the first run also builds
 #                      BentoPDF's web app (tools/webapp.sh, cached)
 #
-# The release key is not in the repository: it lives in ~/.config/bentobook
-# (keystore.jks and keystore.pass; BENTOBOOK_KEYS points elsewhere). Without
+# The release key is not in the repository: it lives in ~/.config/pdf-toolbox
+# (keystore.jks and keystore.pass; PDFTOOLBOX_KEYS points elsewhere). Without
 # it the APK is signed with a test key, which is fine for trying a build but
-# can't update a BentoBook installed from a release.
+# can't update a PDF Toolbox installed from a release.
 set -euo pipefail
 cd "$(dirname "$(readlink -f "$0")")"
 
 C=${ANDROID_CACHE:-$HOME/.cache/android}
-B=${BENTOBOOK_CACHE:-$HOME/.cache/bentobook}
+B=${PDFTOOLBOX_CACHE:-$HOME/.cache/pdf-toolbox}
 WEBKIT=1.18.0-alpha02 # for Profile#setCrossOriginIsolatedAllowlist
 NODE_MAJOR=22
 
@@ -62,7 +62,7 @@ done
 WEB=$(tools/webapp.sh | tail -1)
 LIBS="$C/webkit-$WEBKIT.jar:$C/androidx-core-bits-1.1.0.jar"
 OUT=build
-APK=$OUT/BentoBook.apk
+APK=$OUT/PDFToolbox.apk
 
 rm -rf $OUT
 mkdir -p $OUT/gen $OUT/classes $OUT/dex $OUT/assets/shell $OUT/assets/web
@@ -89,9 +89,24 @@ cp shell/page_shim.js $OUT/assets/shell/
 for w in libreoffice-wasm/browser.worker.global.js; do
   cat shell/nested-workers.js "$OUT/assets/web/$w" > "$OUT/w.tmp" && mv "$OUT/w.tmp" "$OUT/assets/web/$w"
 done
-# About & licenses (/bentobook/), and THIRD_PARTY_NOTICES.md in the repo. It
+# About & licenses (/toolbox/), and THIRD_PARTY_NOTICES.md in the repo. It
 # stops the build if a file in the site belongs to no listed component.
-python3 tools/licenses.py --web $OUT/assets/web --report "$WEB/.vite/licenses.json" --app $OUT/assets/web/bentobook
+python3 tools/licenses.py --web $OUT/assets/web --report "$WEB/.vite/licenses.json" --app $OUT/assets/web/toolbox
+# The app's window (/toolbox/): the sidebar, its tool list from BentoPDF's own
+# (tools/navdata.py) and Phosphor's icons, which BentoPDF uses too (WOFF2 only).
+TB=$OUT/assets/web/toolbox
+cp shell/app.html $TB/index.html
+cp shell/app.css shell/app.js $TB/
+python3 tools/navdata.py --src "$B/bentopdf-$(sed -n 's/^VERSION=//p' tools/webapp.sh)" --web $OUT/assets/web --out $TB/tools.js
+PH=$B/bentopdf-$(sed -n 's/^VERSION=//p' tools/webapp.sh)/node_modules/@phosphor-icons/web/src/regular
+mkdir -p $TB/phosphor
+cp "$PH/Phosphor.woff2" $TB/phosphor/
+python3 - "$PH/style.css" $TB/phosphor/style.css <<'PY'
+import re, sys
+css = open(sys.argv[1]).read()
+css = re.sub(r"src:[^;]*;", 'src: url("./Phosphor.woff2") format("woff2");', css, count=1)
+open(sys.argv[2], "w").write(css)
+PY
 
 aapt2 compile --dir res -o $OUT/res.zip
 aapt2 link -o $OUT/app.apk -I "$C/android.jar" --manifest AndroidManifest.xml \
@@ -116,13 +131,13 @@ if native:
     sys.exit(f"native code in the APK ties it to one CPU architecture: {native[:5]}")
 PY
 zipalign -f 4 $OUT/app.apk $OUT/aligned.apk
-KEYS=${BENTOBOOK_KEYS:-$HOME/.config/bentobook}
+KEYS=${PDFTOOLBOX_KEYS:-$HOME/.config/pdf-toolbox}
 if [[ -f $KEYS/keystore.jks ]]; then
   KS=$KEYS/keystore.jks PASS=file:$KEYS/keystore.pass
 else
   KS=$B/test-key.jks PASS=pass:test-key
-  [[ -f $KS ]] || keytool -genkeypair -keystore "$KS" -storetype PKCS12 -storepass test-key -alias bentobook \
-    -keyalg RSA -keysize 2048 -validity 36500 -dname "CN=BentoBook test build" 2>/dev/null
+  [[ -f $KS ]] || keytool -genkeypair -keystore "$KS" -storetype PKCS12 -storepass test-key -alias pdftoolbox \
+    -keyalg RSA -keysize 2048 -validity 36500 -dname "CN=PDF Toolbox test build" 2>/dev/null
   echo "no release key in $KEYS: signing with the test key $KS" >&2
 fi
 apksigner sign --ks "$KS" --ks-pass "$PASS" --out $APK $OUT/aligned.apk

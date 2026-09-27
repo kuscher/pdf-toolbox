@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""BentoBook's icon: a bento box of PDF tools, drawn once and written as
+"""PDF Toolbox's icon: a bento box of PDF tools, drawn once and written as
 Android adaptive-icon layers and as SVG.
 
     python3 tools/icon.py [--preview DIR]
@@ -141,7 +141,7 @@ def svg(paths, size=108, shape="squircle"):
         f'  <path d="{p[0]}" fill="{p[1]}"' + (f' fill-opacity="{p[2]}"' if p[2] != 1 else "")
         + (' fill-rule="evenodd"' if len(p) > 3 else "") + "/>" for p in paths)
     return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="18 18 72 72" width="{size}" height="{size}">
-  <title>BentoBook</title>
+  <title>PDF Toolbox</title>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="108" y2="108" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="{BG_TOP}"/><stop offset="1" stop-color="{BG_BOTTOM}"/>

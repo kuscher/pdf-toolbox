@@ -1,4 +1,4 @@
-/* BentoBook's own pages (/bentobook/): BentoPDF's dark palette (Tailwind gray and indigo). */
+/* PDF Toolbox's own pages (/toolbox/): BentoPDF's dark palette (Tailwind gray and indigo). */
 :root { color-scheme: dark; }
 * { box-sizing: border-box; }
 body {

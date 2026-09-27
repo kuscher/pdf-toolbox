@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: MIT
-# Builds BentoPDF's web app for BentoBook and caches it:
-#   ~/.cache/bentobook/web-<version>/   the site root the app serves
+# Builds BentoPDF's web app for PDF Toolbox and caches it:
+#   ~/.cache/pdf-toolbox/web-<version>/   the site root the app serves
 #
 # BentoPDF's own air-gap route (docs/self-hosting, "Air-Gapped / Offline
 # Deployment"): Simple Mode, and every WASM engine and the OCR data served
@@ -16,7 +16,7 @@
 #   EDITOR_FONTS=latin,arabic,hebrew,jp,kr,sc,tc tools/webapp.sh --force
 #                              the PDF Editor's fallback fonts (below)
 #
-# Needs Node with npm (build.sh fetch puts one in ~/.cache/bentobook/node).
+# Needs Node with npm (build.sh fetch puts one in ~/.cache/pdf-toolbox/node).
 set -euo pipefail
 cd "$(dirname "$(readlink -f "$0")")/.."
 
@@ -25,7 +25,7 @@ COMMIT=f96cd4e5166f3d51393dfe9f3c440b5bb77802f1 # tag v2.8.8
 ORIGIN=https://appassets.androidplatform.net
 OCR_LANGS=${OCR_LANGS:-eng}
 EDITOR_FONTS=${EDITOR_FONTS:-latin,arabic,hebrew}
-CACHE=${BENTOBOOK_CACHE:-$HOME/.cache/bentobook}
+CACHE=${PDFTOOLBOX_CACHE:-$HOME/.cache/pdf-toolbox}
 SRC=$CACHE/bentopdf-$VERSION
 AIRGAP=$CACHE/airgap-$VERSION-${OCR_LANGS//,/-}
 WEB=$CACHE/web-$VERSION
@@ -74,7 +74,7 @@ done
 # file wraps BentoPDF's config and adds the report. tools/licenses.py turns it
 # into the app's notices. (Vite leaves workers out; licenses.py adds theirs.)
 cat > vite.config.mjs <<'EOF'
-// Written by BentoBook's tools/webapp.sh: BentoPDF's config plus Vite's license report.
+// Written by PDF Toolbox's tools/webapp.sh: BentoPDF's config plus Vite's license report.
 import { mergeConfig } from 'vite';
 import base from './vite.config.ts';
 export default async (env) => mergeConfig(
@@ -83,6 +83,10 @@ export default async (env) => mergeConfig(
 EOF
 
 rm -rf dist
+# PDF Toolbox's name and icon where BentoPDF shows its own (the home page's
+# title, the PDF Multi Tool's header, the navbar): BentoPDF's own branding
+# options. The icon is served from the app's toolbox/ folder (build.sh).
+VITE_BRAND_NAME="PDF Toolbox" VITE_BRAND_LOGO=toolbox/icon.svg \
 SIMPLE_MODE=true COMPRESSION_MODE=o DISABLE_GITHUB_STARS=true SITE_URL=$ORIGIN \
 VITE_WASM_PYMUPDF_URL=$ORIGIN/wasm/pymupdf/ \
 VITE_WASM_GS_URL=$ORIGIN/wasm/gs/ \

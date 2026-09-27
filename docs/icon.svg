@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="18 18 72 72" width="128" height="128">
-  <title>BentoBook</title>
+  <title>PDF Toolbox</title>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="108" y2="108" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#ECE9FF"/><stop offset="1" stop-color="#CFC8FF"/>

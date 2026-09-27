@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-package local.bentobook;
+package local.pdftoolbox;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -12,7 +12,7 @@ final class Store {
   private final SharedPreferences prefs;
 
   Store(Context context) {
-    prefs = context.getSharedPreferences("bentobook", Context.MODE_PRIVATE);
+    prefs = context.getSharedPreferences("pdftoolbox", Context.MODE_PRIVATE);
   }
 
   /** The page's last top colour, so the window opens in it. */

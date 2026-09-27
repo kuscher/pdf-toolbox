@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: MIT
-# Makes a BentoBook release from build/BentoBook.apk, for the version in
+# Makes a PDF Toolbox release from build/PDFToolbox.apk, for the version in
 # AndroidManifest.xml:
 #
 #   tools/release.sh            the files, in executables/release-<version>/
@@ -8,14 +8,14 @@
 #                               the GitHub release with the files
 #
 # The files:
-#   BentoBook.apk                  the app. The name stays the same in every
+#   PDFToolbox.apk                  the app. The name stays the same in every
 #                                  release, so .../releases/latest/download/
-#                                  BentoBook.apk always gets the newest one.
-#   BentoBook-<v>-source.tar.gz    the source the AGPL asks for next to the app:
+#                                  PDFToolbox.apk always gets the newest one.
+#   PDFToolbox-<v>-source.tar.gz    the source the AGPL asks for next to the app:
 #                                  this repository at the release commit,
 #                                  BentoPDF at the commit tools/webapp.sh pins,
 #                                  the engines' build scripts and the notices
-#   BentoBook-<v>-third-party-sources.tar
+#   PDFToolbox-<v>-third-party-sources.tar
 #                                  the sources licenses/mirror.txt lists (GPL-2.0
 #                                  fonts, LGPL libraries, pdf2docx)
 #   SHA256SUMS                     checksums of the three
@@ -26,9 +26,9 @@ cd "$(dirname "$(readlink -f "$0")")/.."
 V=$(sed -n 's/.*android:versionName="\([^"]*\)".*/\1/p' AndroidManifest.xml)
 TAG=v$V
 OUT=executables/release-$V
-APK=build/BentoBook.apk
-CACHE=${BENTOBOOK_CACHE:-$HOME/.cache/bentobook}
-KEYS=${BENTOBOOK_KEYS:-$HOME/.config/bentobook}
+APK=build/PDFToolbox.apk
+CACHE=${PDFTOOLBOX_CACHE:-$HOME/.cache/pdf-toolbox}
+KEYS=${PDFTOOLBOX_KEYS:-$HOME/.config/pdf-toolbox}
 BV=$(sed -n 's/^VERSION=//p' tools/webapp.sh)
 BC=$(sed -n 's/^COMMIT=\([0-9a-f]*\).*/\1/p' tools/webapp.sh)
 REPO=$(python3 -c "import json; print(json.load(open('licenses/components.json'))['app']['repo'])")
@@ -49,14 +49,14 @@ grep -q "^## $V" CHANGELOG.md || die "CHANGELOG.md has no section for $V"
 [[ -d $CACHE/bentopdf-$BV ]] || die "no BentoPDF checkout in $CACHE: run ./build.sh"
 
 rm -rf "$OUT" && mkdir -p "$OUT"
-cp "$APK" "$OUT/BentoBook.apk"
-cp "$APK" "executables/BentoBook-$V.apk"
+cp "$APK" "$OUT/PDFToolbox.apk"
+cp "$APK" "executables/PDFToolbox-$V.apk"
 
-NAME=BentoBook-$V-source
+NAME=PDFToolbox-$V-source
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
 mkdir -p "$TMP/$NAME/engine-build-scripts"
-git archive --prefix=bentobook/ HEAD | tar x -C "$TMP/$NAME"
+git archive --prefix=pdf-toolbox/ HEAD | tar x -C "$TMP/$NAME"
 git -C "$CACHE/bentopdf-$BV" archive --prefix="bentopdf-$BV/" "$BC" | tar x -C "$TMP/$NAME"
 # From each engine package: its license, readme, package.json and build
 # scripts (the compiled files are in the APK).
@@ -73,11 +73,11 @@ for tgz in sys.argv[2:]:
         t.extractall(dest, members=keep, filter="data")
 PY
 cat > "$TMP/$NAME/README.md" <<EOF
-# BentoBook $V: source
+# PDF Toolbox $V: source
 
-The complete source of BentoBook $V ($REPO/releases/tag/$TAG):
+The complete source of PDF Toolbox $V ($REPO/releases/tag/$TAG):
 
-- \`bentobook/\`: BentoBook itself at the release commit ($(git rev-parse HEAD)).
+- \`pdf-toolbox/\`: PDF Toolbox itself at the release commit ($(git rev-parse HEAD)).
   Its README says how to build the APK; THIRD_PARTY_NOTICES.md lists every
   component with its license and the source of its exact version.
 - \`bentopdf-$BV/\`: BentoPDF $BV at commit $BC, the app's PDF tools
@@ -91,14 +91,14 @@ tar czf "$OUT/$NAME.tar.gz" -C "$TMP" "$NAME"
 
 # The sources licenses/mirror.txt lists: the GPL-2.0 and LGPL parts' licenses
 # want them offered from the same place as the app.
-TP=BentoBook-$V-third-party-sources
+TP=PDFToolbox-$V-third-party-sources
 MIRROR=$CACHE/mirror
 mkdir -p "$TMP/$TP" "$MIRROR"
 {
-  echo "# BentoBook $V: third-party sources"
+  echo "# PDF Toolbox $V: third-party sources"
   echo
-  echo "Sources of the parts of BentoBook $V whose licenses (GPL-2.0, LGPL, GPL-3.0) ask"
-  echo "for their source next to the app. BentoBook-$V-source.tar.gz has BentoBook and"
+  echo "Sources of the parts of PDF Toolbox $V whose licenses (GPL-2.0, LGPL, GPL-3.0) ask"
+  echo "for their source next to the app. PDFToolbox-$V-source.tar.gz has PDF Toolbox and"
   echo "BentoPDF; THIRD_PARTY_NOTICES.md links the exact source of everything else."
   echo
   echo "| File | From |"
@@ -117,29 +117,29 @@ done < licenses/mirror.txt
 (cd "$TMP/$TP" && sha256sum -- *.* | grep -v ' README.md$' > SHA256SUMS)
 tar cf "$OUT/$TP.tar" -C "$TMP" "$TP"
 
-(cd "$OUT" && sha256sum BentoBook.apk "$NAME.tar.gz" "$TP.tar" > SHA256SUMS)
-apk_sha=$(cut -d' ' -f1 < <(sha256sum "$OUT/BentoBook.apk"))
+(cd "$OUT" && sha256sum PDFToolbox.apk "$NAME.tar.gz" "$TP.tar" > SHA256SUMS)
+apk_sha=$(cut -d' ' -f1 < <(sha256sum "$OUT/PDFToolbox.apk"))
 fingerprint=$(sed 's/../&:/g; s/:$//' <<< "${cert^^}")
-size=$(( $(stat -c %s "$OUT/BentoBook.apk") / 1000000 ))
+size=$(( $(stat -c %s "$OUT/PDFToolbox.apk") / 1000000 ))
 {
   awk -v v="$V" '$0 ~ "^## " v { on = 1; next } /^## / { on = 0 } on' CHANGELOG.md
   cat <<EOF
 
 ## Install
 
-On your Googlebook, download **BentoBook.apk** below ($size MB) in Chrome and open it.
+On your Googlebook, download **PDFToolbox.apk** below ($size MB) in Chrome and open it.
 Android asks once to allow installs from Chrome (or Files): allow it, then
 choose **Install**. The [README]($REPO#install) walks through it with the
 messages you'll see. One APK for every Googlebook, Intel (x86_64) or Arm.
 
 ## Verify
 
-- SHA-256 of BentoBook.apk: \`$apk_sha\`
+- SHA-256 of PDFToolbox.apk: \`$apk_sha\`
 - Signing certificate SHA-256: \`$fingerprint\`
 
 ## License and source
 
-BentoBook's own code is MIT-licensed. The app contains BentoPDF and several
+PDF Toolbox's own code is MIT-licensed. The app contains BentoPDF and several
 engines under the GNU AGPL v3, so the app as a whole is distributed under the
 AGPL v3; every component is listed in [THIRD_PARTY_NOTICES.md]($REPO/blob/$TAG/THIRD_PARTY_NOTICES.md)
 and in the app under About & licenses. The complete source is
@@ -150,9 +150,9 @@ EOF
 ls -la "$OUT"
 
 if [[ ${1:-} == --publish ]]; then
-  git rev-parse -q --verify "refs/tags/$TAG" >/dev/null || git tag -a "$TAG" -m "BentoBook $V"
+  git rev-parse -q --verify "refs/tags/$TAG" >/dev/null || git tag -a "$TAG" -m "PDF Toolbox $V"
   [[ $(git rev-parse "$TAG^{commit}") == "$(git rev-parse HEAD)" ]] || die "$TAG is not HEAD"
   git push origin "$TAG"
-  gh release create "$TAG" --title "BentoBook $V" --notes-file "$OUT/notes.md" --latest \
-    "$OUT/BentoBook.apk" "$OUT/$NAME.tar.gz" "$OUT/$TP.tar" "$OUT/SHA256SUMS"
+  gh release create "$TAG" --title "PDF Toolbox $V" --notes-file "$OUT/notes.md" --latest \
+    "$OUT/PDFToolbox.apk" "$OUT/$NAME.tar.gz" "$OUT/$TP.tar" "$OUT/SHA256SUMS"
 fi

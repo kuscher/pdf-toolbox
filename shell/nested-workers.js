@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // (build.sh prepends it to a file of the LibreOffice converter, which is
 // MPL-2.0; the MIT License lets it go out under the MPL as part of that file.)
-// BentoBook, prepended by build.sh to worker scripts that start workers of
+// PDF Toolbox, prepended by build.sh to worker scripts that start workers of
 // their own (LibreOffice's converter starts four Emscripten thread workers).
 // WebView never answers the script request of a worker started from inside
 // another worker: it can't route it to the app's asset server, and the

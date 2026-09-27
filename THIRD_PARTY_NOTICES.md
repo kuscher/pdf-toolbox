@@ -3,7 +3,7 @@
 <!-- Written by tools/licenses.py from licenses/components.json and BentoPDF's
      build; run it again after changing either. -->
 
-BentoBook 0.5 is BentoPDF 2.8.8 in an Android app. BentoBook's own code (this
+PDF Toolbox 0.6 is BentoPDF 2.8.8 in an Android app. PDF Toolbox's own code (this
 repository) is under the MIT License ([LICENSE](LICENSE)). The app it builds contains BentoPDF
 and several engines under the GNU Affero General Public License v3, so the app as a whole is
 distributed under the AGPL v3 ([licenses/texts/AGPL-3.0.txt](licenses/texts/AGPL-3.0.txt)).
@@ -12,18 +12,21 @@ The app shows the same list, with every license text, under **About & licenses**
 
 ## BentoPDF, modified
 
-BentoBook contains a modified version of BentoPDF 2.8.8 (commit
+PDF Toolbox contains a modified version of BentoPDF 2.8.8 (commit
 [`f96cd4e`](https://github.com/alam00000/bentopdf/tree/f96cd4e5166f3d51393dfe9f3c440b5bb77802f1)), AGPL-3.0,
 copyright © the BentoPDF authors. The changes, all in this repository:
 
 - it is built in Simple Mode, with every engine, its data and the editor's fonts
-  served from the app instead of CDNs (tools/webapp.sh);
-- BentoBook's page script (shell/page_shim.js) runs in every page: opening and saving
+  served from the app instead of CDNs, and with PDF Toolbox's name and logo in its
+  header (tools/webapp.sh);
+- PDF Toolbox's page script (shell/page_shim.js) runs in every page: opening and saving
   files through Android, printing, a compact tool layout and the About link;
+- the app shows its pages in PDF Toolbox's sidebar window (shell/app.html), which hides
+  BentoPDF's top bar and the PDF Multi Tool's header there;
 - a prelude (shell/nested-workers.js) is prepended to the LibreOffice converter's worker,
   so its thread workers can start in Android's WebView.
 
-PDFs made with BentoBook keep BentoPDF's producer line, as BentoPDF asks.
+PDFs made with PDF Toolbox keep BentoPDF's producer line, as BentoPDF asks.
 
 ## Source code
 
@@ -33,13 +36,13 @@ component below. Each GitHub release carries a source archive of the first two a
 engines' build scripts, and a second archive with the sources that
 [licenses/mirror.txt](licenses/mirror.txt) lists: the GPL-2.0 fonts and the LGPL
 libraries compiled into the engines, whose licenses ask for them next to the app
-(`./bb release`).
+(`./ptb release`).
 
-## BentoPDF and BentoBook
+## BentoPDF and PDF Toolbox
 
 | Component | Version | License | Copyright | Source |
 | --- | --- | --- | --- | --- |
-| BentoBook | 0.5 | MIT ([MIT-BentoBook.txt](licenses/texts/MIT-BentoBook.txt)) | Copyright (c) 2026 the BentoBook authors | https://github.com/kuscher/bentobook/tree/v0.5 |
+| PDF Toolbox | 0.6 | MIT ([MIT-PDFToolbox.txt](licenses/texts/MIT-PDFToolbox.txt)) | Copyright (c) 2026 the PDF Toolbox authors | https://github.com/kuscher/pdf-toolbox/tree/v0.6 |
 | BentoPDF | 2.8.8 | AGPL-3.0-only ([AGPL-3.0.txt](licenses/texts/AGPL-3.0.txt)) | Copyright © 2026 BentoPDF, the BentoPDF authors | https://github.com/alam00000/bentopdf/tree/f96cd4e5166f3d51393dfe9f3c440b5bb77802f1 |
 
 ## Engines
@@ -651,14 +654,14 @@ texts are in [licenses/javascript-packages.txt](licenses/javascript-packages.txt
 How each component gets into the app, where its build scripts are, and notes from the license
 audit: obligations, and what couldn't be verified.
 
-### BentoBook 0.5
+### PDF Toolbox 0.6
 
-- **Used for:** The Android app around BentoPDF: its window, files, downloads and printing, the page script, these pages, and the scripts that build it
+- **Used for:** The Android app around BentoPDF: its window and sidebar, files, downloads and printing, the page script, these pages, and the scripts that build it
 
 ### BentoPDF 2.8.8
 
 - **Used for:** The PDF tools: every page, script, style and translation of the site, built by tools/webapp.sh
-- Modified by BentoBook: built in Simple Mode with every engine served from the app (tools/webapp.sh); BentoBook's page script runs in its pages (shell/page_shim.js); a prelude is prepended to the LibreOffice converter's worker (shell/nested-workers.js).
+- Modified by PDF Toolbox: built in Simple Mode with every engine served from the app and PDF Toolbox's name and logo in its header (tools/webapp.sh); PDF Toolbox's page script runs in its pages (shell/page_shim.js); its pages are shown in PDF Toolbox's sidebar window, without BentoPDF's top bar (shell/app.html); a prelude is prepended to the LibreOffice converter's worker (shell/nested-workers.js).
 
 ### LibreOffice 24.8.8
 
@@ -689,7 +692,7 @@ audit: obligations, and what couldn't be verified.
 - zlib's LICENSE file says (C) 1995-2022 while zlib.h of 1.3.1 says 1995-2024; both lines are listed.
 - Emscripten version is inferred (latest release before the 2025-12-24 commit is 4.0.22); its LICENSE, musl COPYRIGHT and compiler-rt LICENSE were taken from 4.0.22 as reference copies.
 - The URW font exception has no SPDX identifier; 'AdditionRef-Ghostscript-font-exception' is a local reference to the paragraph in ghostscript-10.06.0--LICENSE.txt.
-- wasm/gs/dist/index.js loads gs.js from '<base>/assets/'; BentoBook serves wasm/gs/assets/* from wasm/gs/ (docs in tools/webapp.sh).
+- wasm/gs/dist/index.js loads gs.js from '<base>/assets/'; PDF Toolbox serves wasm/gs/assets/* from wasm/gs/ (docs in tools/webapp.sh).
 
 ### CoherentPDF (coherentpdf.js) 2.5.5
 
@@ -709,7 +712,7 @@ audit: obligations, and what couldn't be verified.
 
 ### tesseract.js-core (Tesseract and Leptonica) 7.0.0
 
-- **In the app via:** BentoPDF air-gap bundle (scripts/prepare-airgap.sh: npm pack tesseract.js-core@7.0.0); BentoBook tools/webapp.sh extracts the whole package to wasm/ocr/core/
+- **In the app via:** BentoPDF air-gap bundle (scripts/prepare-airgap.sh: npm pack tesseract.js-core@7.0.0); PDF Toolbox tools/webapp.sh extracts the whole package to wasm/ocr/core/
 - **Used for:** OCR engine for the OCR PDF tool, the Workflow Builder's OCR node and Compare PDFs; the worker loads one *.wasm.js single-file build (relaxed-SIMD / SIMD / plain, each LSTM-only or with the legacy engine) according to browser support
 - **Build:** In the tesseract.js-core repo at v7.0.0: build-with-docker.sh (Docker image emscripten/emsdk:4.0.15), build.sh, build-scripts/build-{zlib,libtiff,openlibm,giflib,libpng,libjpeg,libwebp,leptonica,tesseract}.sh and var.sh (-O3 --closure 1), javascript/ (WebIDL glue: tesseract.idl, glue.js, anterior.js, src/wrapper.cpp); link flags and linked libraries in the WASM_BUILD section of the Tesseract fork's CMakeLists.txt
 - The package itself ships its LICENSE as wasm/ocr/core/LICENSE (unfilled Apache-2.0, no copyright line); there is no NOTICE file in tesseract.js-core, the Tesseract fork or tessdata_best (raw NOTICE URLs: 404).
@@ -731,7 +734,7 @@ audit: obligations, and what couldn't be verified.
 - pdf_viewer.css images are inlined as data: URIs into assets/form-creator-*.css; one of them (altText_spinner.svg) carries an MPL-2.0 header (Mozilla/Firefox icon), hence MPL-2.0.txt. cursor-editorTextHighlight.svg is emitted as its own file (byte-identical to pdfjs-dist/web/images).
 - BentoPDF passes wasmUrl = pdfjs-viewer/wasm/ (helpers.ts), so this library runs the OpenJPEG and qcms WebAssembly shipped with the 5.4.296 viewer (components pdfjs-openjpeg-wasm, pdfjs-qcms-wasm; the files are byte-identical to pdfjs-dist 5.5.207's own wasm/). pdfjs-dist 5.5.207 also has wasm/jbig2.wasm (PDFium-derived, BSD-3-Clause) which is NOT shipped: JBIG2 falls back to pdf.js's JS decoder. No cMapUrl/standardFontDataUrl/iccUrl is set, so the main app fetches no cmaps/standard fonts/ICC files.
 - The worker contains the Emscripten/wasm-bindgen loader glue for those wasm modules (generated code, no separate notice in upstream).
-- The Mozilla licence headers are stripped from the shipped Vite chunks (no "Copyright ... Mozilla Foundation" left in assets/pdf.worker-*.js, main-CTXic8Nn.js or form-creator-*.css), so BentoBook's notices are the only place the attribution and Apache-2.0 text appear.
+- The Mozilla licence headers are stripped from the shipped Vite chunks (no "Copyright ... Mozilla Foundation" left in assets/pdf.worker-*.js, main-CTXic8Nn.js or form-creator-*.css), so PDF Toolbox's notices are the only place the attribution and Apache-2.0 text appear.
 
 ### PDFium with EmbedPDF (bentopdf-pdfium) 8ff5002c6cd5
 
@@ -747,7 +750,7 @@ audit: obligations, and what couldn't be verified.
 - Versions of FreeType, libjpeg-turbo, libpng, zlib, Brotli, ICU, Abseil, fast_float, lcms2, OpenJPEG, AGG come from README.chromium/README.pdfium at the DEPS-pinned revisions; libpng 1.6.43 is also confirmed by a string in the wasm. Chromium's libpng/zlib LICENSE copies carry older year ranges; the upstream LICENSE of the same version is reproduced instead.
 - compile.esm.sh links with -sUSE_ZLIB=1 (Emscripten's zlib port, zlib 1.2.13 in emsdk 3.1.70), but no EditCore/ext source includes zlib.h and PDFium uses Chromium's Cr_z_-prefixed zlib, so the port is most likely not linked (unverified; same Zlib license either way).
 - The spell-check feature (ec_spell_*) fetches 'dict/en.txt.gz', which BentoPDF does not ship (no dictionary in the APK), so no word-list license applies.
-- Trademarks: the fork README notes 'EmbedPDF' and 'CloudPDF' are brand names of CloudPDF; PDFium is a Google project. Nothing of these marks is shown in BentoBook's UI from this component.
+- Trademarks: the fork README notes 'EmbedPDF' and 'CloudPDF' are brand names of CloudPDF; PDFium is a Google project. Nothing of these marks is shown in PDF Toolbox's UI from this component.
 
 ### qpdf (qpdf-wasm) 12.2.0 (qpdf-wasm 0.3.0)
 
@@ -767,7 +770,7 @@ audit: obligations, and what couldn't be verified.
 - **In the app via:** npm wasm-vips@0.0.17 (BentoPDF dependency). Vite emits lib/vips.wasm (imported as 'wasm-vips/vips.wasm?url') and bundles lib/vips-es6.js twice: the module chunk and a copy used as the pthread worker script
 - **Used for:** PDF to TIFF: pages rendered by pdf.js are encoded by libvips into single- or multi-page TIFF (LZW, Deflate, JPEG, PackBits or no compression)
 - **Build:** https://github.com/kleisauke/wasm-vips/blob/v0.0.17/build.sh (defaults: SIMD, modules, UHDR/JXL/AVIF/SVG on) run in the Dockerfile at the same tag (docker.io/emscripten/emsdk:5.0.3 + the two Emscripten patches above; Rust nightly-2026-03-19 only for the resvg side module); JS/C++ bindings: src/ and meson.build at the tag
-- Only the main module ships: assets/vips-C9VSaDuC.wasm is byte-identical to wasm-vips 0.0.17 lib/vips.wasm. The side modules lib/vips-heif.wasm (libheif + aom), vips-jxl.wasm (libjxl + brotli) and vips-resvg.wasm (resvg + Rust crates) are not in the APK, and BentoPDF passes dynamicLibraries: [] so they are never requested (the glue still names vips-jxl.wasm/vips-heif.wasm as defaults). wasm-vips's THIRD-PARTY-NOTICES.md (reproduced as shipped upstream) lists aom, brotli, libheif, libjxl and resvg too; those do not apply to BentoBook's files.
+- Only the main module ships: assets/vips-C9VSaDuC.wasm is byte-identical to wasm-vips 0.0.17 lib/vips.wasm. The side modules lib/vips-heif.wasm (libheif + aom), vips-jxl.wasm (libjxl + brotli) and vips-resvg.wasm (resvg + Rust crates) are not in the APK, and BentoPDF passes dynamicLibraries: [] so they are never requested (the glue still names vips-jxl.wasm/vips-heif.wasm as defaults). wasm-vips's THIRD-PARTY-NOTICES.md (reproduced as shipped upstream) lists aom, brotli, libheif, libjxl and resvg too; those do not apply to PDF Toolbox's files.
 - LGPL: vips.wasm statically links LGPL-2.1-or-later code (libvips, GLib, libexif; wasm-vips's notice says it uses them under LGPLv3 via the 'any later version' clause) together with MIT/BSD/Apache code. Obligations when shipping the APK: LGPL text and notices; the complete corresponding source of those libraries INCLUDING wasm-vips's patches; and, because everything is linked into one wasm, the means to relink with a modified library (LGPL-2.1 s.6(a) / LGPL-3.0 s.4(d)(0)): satisfied by offering the wasm-vips v0.0.17 source and build.sh together with all pinned dependency sources.
 - Provenance risk for that source offer: build.sh applies patches fetched from GitHub compare URLs on kleisauke's branches, which can be force-pushed or deleted. As fetched on 2026-09-27: libvips patch sha256 a5d09c00b0be2e7e1d5b608b4638bfcf2c77d26ec8f2be04579eeccc01a1b1dd, glib patch c6fe50bf0d348d14691738f7b35acc7470c30b6f104360829c292b7b37d71b70, emscripten wasm-vips-5.0.3 patch 0dffd4e429472f850042e0938faa56dadc9061f74575549f539215391c703d7e, mimalloc-update-3.2.8 patch 16b08eef67d7d0e2e4dd7d2cd9cb4f4cd55b480574d28a0858e34eb3002f3b6b, libjpeg-turbo a60fb46 patch 707c465f0215a786843438a352039bf18ccc83e5bb374670270c1e4e753bbe8b, libultrahdr 5ed39d6 patch 8e1d51b65d057a1b9337172f4c3479ee6431d00dd585d3fd43f6a07c2c0b3244. Whether these equal what was applied for the March 2026 build is not verifiable; mirror them with the source offer.
 - libultrahdr (UHDR load/save is compiled in): its NOTICE 'This product includes Gain Map technology under license by Adobe.' must be reproduced; Adobe's underlying license terms are not published in the repo.
@@ -819,8 +822,8 @@ audit: obligations, and what couldn't be verified.
 - **In the app via:** npm heic2any@0.0.4 (BentoPDF dependency; dist/heic2any.js bundled by Vite into its own chunk)
 - **Used for:** HEIC/HEIF decoding (converted to PNG first): HEIC to PDF, HEIC/HEIF files added to Image to PDF, the PDF Multi Tool and the Workflow Builder's image input
 - **Build:** heic2any build/build.ts at tag 0.0.4 (tsc + buble + uglify; wraps src/libheif.js into a Blob worker string); libheif.js itself: libheif v1.10.0 build-emscripten.sh with pre.js/post.js (https://github.com/strukturag/libheif/blob/v1.10.0/build-emscripten.sh; pins libde265 1.0.2, asm.js output, --memory-init-file 0)
-- heic2any declares only MIT (package.json, LICENSE.md, Vite's report), but dist/heic2any.js embeds, as a worker-source string, libheif.js: libheif 1.10.0 + libde265 1.0.2 compiled to asm.js with Emscripten, both LGPL-3.0-or-later. No LGPL notice survives in the shipped chunk: heic2any's uglify step and Vite's minifier strip comments (even gifshot's Yahoo MIT header is gone from assets/heic2any-*.js), so BentoBook's notices must supply the LGPL-3.0 and GPL-3.0 texts and the copyright lines.
-- LGPL-3.0 s.4 obligations for this Combined Work: prominent notice + license texts; Minimal Corresponding Source of the library (libheif 1.10.0 and libde265 1.0.2 sources and the build recipe: libheif v1.10.0 build-emscripten.sh, pre.js, post.js) and the Corresponding Application Code (heic2any 0.0.4 source) so a user can rebuild with a modified libheif. BentoBook's AGPL source offer should include or point to these exact sources.
+- heic2any declares only MIT (package.json, LICENSE.md, Vite's report), but dist/heic2any.js embeds, as a worker-source string, libheif.js: libheif 1.10.0 + libde265 1.0.2 compiled to asm.js with Emscripten, both LGPL-3.0-or-later. No LGPL notice survives in the shipped chunk: heic2any's uglify step and Vite's minifier strip comments (even gifshot's Yahoo MIT header is gone from assets/heic2any-*.js), so PDF Toolbox's notices must supply the LGPL-3.0 and GPL-3.0 texts and the copyright lines.
+- LGPL-3.0 s.4 obligations for this Combined Work: prominent notice + license texts; Minimal Corresponding Source of the library (libheif 1.10.0 and libde265 1.0.2 sources and the build recipe: libheif v1.10.0 build-emscripten.sh, pre.js, post.js) and the Corresponding Application Code (heic2any 0.0.4 source) so a user can rebuild with a modified libheif. PDF Toolbox's AGPL source offer should include or point to these exact sources.
 - Provenance (verified): heic2any 0.0.4 src/libheif.js equals libheif's gh-pages libheif.js at commit d7d6f2bd6b5e793f1f4dd483cf18a0ad57ac7237 (2020-12-17, message 'Update to libheif 1.10.1') after normalising CRLF line endings, plus a trailing '// .... end libheif' comment. Inferred: built from libheif v1.10.0 (commit 667eeabb553c): the embedded version string is '1.10.0', no v1.10.1 tag exists, and master had no further commits until at least 2020-12-18. The Emscripten version used is unknown.
 - libde265 1.0.2 is read from the embedded string following 'libde265 HEVC decoder, version ' and matches the LIBDE265_VERSION=1.0.2 pin in libheif v1.10.0's build-emscripten.sh. libde265's md5.cc is linked (SEI 'decoded picture MD5 mismatch' strings present).
 - npm's gitHead for heic2any 0.0.4 (3222e591, a 2020 commit) is stale; the published dist/heic2any.js is byte-identical to dist/heic2any.js at tag 0.0.4.
@@ -890,7 +893,7 @@ audit: obligations, and what couldn't be verified.
 - Byte-identical to upstream 5.4.296: pdf.worker.mjs, pdf.sandbox.mjs, viewer.mjs.map (release zip), pdf_viewer.mjs.map, pdf_viewer.d.mts (npm pdfjs-dist 5.4.296), all 73 images. Modified by BentoPDF (no change notice in the files; Apache-2.0 sec. 4(b) asks for one): pdf.mjs (signature colour), viewer.mjs (signature font/colour controls, default annotationEditorMode 1, no default PDF, paths to pdf.worker/pdf.sandbox), viewer.html (flattened paths, font/colour picker), viewer.css (prettier-reformatted plus @font-face rules for the extra signature fonts), pdf_viewer.mjs (worker paths), pdf_viewer.css (3 CSS-variable tweaks).
 - BentoPDF's modifications carry no license statement of their own; as part of the BentoPDF repository they are presumably AGPL-3.0-only (BentoPDF's licence) - inferred, not stated.
 - pdfjs-viewer/form-viewer.html and sign-viewer.html are BentoPDF-authored pages ("... - Bento PDF"), not pdf.js; they belong to BentoPDF's own AGPL-3.0-only component (and are not referenced from src/, apparently unused).
-- No top-level LICENSE file ships in pdfjs-viewer/ (the licence is only in file headers); BentoBook's notices must supply the Apache-2.0 text.
+- No top-level LICENSE file ships in pdfjs-viewer/ (the licence is only in file headers); PDF Toolbox's notices must supply the Apache-2.0 text.
 - The viewer's AppOptions keep upstream defaults cMapUrl ../web/cmaps/, standardFontDataUrl ../web/standard_fonts/, iccUrl ../web/iccs/, wasmUrl ../web/wasm/, which resolve outside pdfjs-viewer/ in BentoPDF's flattened layout; so this viewer probably never loads the cmaps/standard_fonts/iccs/wasm shipped next to it (inferred from the code, not tested). The extra signature fonts are loaded via viewer.css.
 - Sub-components with their own licences are separate entries: pdfjs-openjpeg-wasm, pdfjs-qcms-wasm, pdfjs-standard-fonts-foxit, pdfjs-standard-fonts-liberation, pdfjs-cmaps, pdfjs-iccs, pdfjs-l10n, font-alex-brush, font-allura, font-handlee, font-kalam-ttf, font-sacramento.
 
@@ -949,7 +952,7 @@ audit: obligations, and what couldn't be verified.
 
 ### tesseract.js (worker) 7.0.0
 
-- **In the app via:** BentoPDF air-gap bundle (scripts/prepare-airgap.sh: npm pack tesseract.js@7.0.0); BentoBook tools/webapp.sh extracts only package/dist/worker.min.js
+- **In the app via:** BentoPDF air-gap bundle (scripts/prepare-airgap.sh: npm pack tesseract.js@7.0.0); PDF Toolbox tools/webapp.sh extracts only package/dist/worker.min.js
 - **Used for:** OCR: runs Tesseract in a Web Worker for the OCR PDF tool (searchable PDF), the Workflow Builder's OCR node and Compare PDFs (OCR of image-only pages)
 - **Build:** webpack: scripts/webpack.config.prod.js (npm run build) in the repo/package at v7.0.0; bundled dependency versions from the tag's package-lock.json
 - worker.min.js begins with '/*! For license information please see worker.min.js.LICENSE.txt */', but the app ships only worker.min.js; the referenced file (webpack's extracted banners: buffer, ieee754, regenerator-runtime, zlib.js) is reproduced as texts/tesseract.js-7.0.0--worker.min.js.LICENSE.txt.
@@ -1038,7 +1041,7 @@ audit: obligations, and what couldn't be verified.
 - Fontsource repackaging of the Google Fonts release (metadata.json: source https://github.com/google/fonts, Google Fonts API version v29, lastModified 2025-09-08); upstream font project: https://github.com/googlefonts/DancingScript.
 - Imported weights/styles: 400 (src/css/styles.css @import '@fontsource/dancing-script/<weight>.css'); Vite emits every unicode-range subset of those weights as WOFF2 + WOFF; subsets under 4 KB are inlined as data: URIs in assets/style-*.css instead of separate files.
 - Fonts are redistributed unmodified as published by Fontsource (already subset and converted to WOFF/WOFF2 upstream); OFL-1.1 is satisfied by shipping the copyright notice + license text (texts) with the fonts; fonts may not be sold by themselves.
-- Reserved Font Name "Dancing Script": BentoBook must not modify these files and keep calling the result "Dancing Script"; unmodified redistribution (as here) is fine. Whether Google/Fontsource subsetting already counts as a "Modified Version" under OFL is the usual gray area accepted industry-wide for Google Fonts; nothing BentoBook adds.
+- Reserved Font Name "Dancing Script": PDF Toolbox must not modify these files and keep calling the result "Dancing Script"; unmodified redistribution (as here) is fine. Whether Google/Fontsource subsetting already counts as a "Modified Version" under OFL is the usual gray area accepted industry-wide for Google Fonts; nothing PDF Toolbox adds.
 
 ### DejaVu fonts (in LibreOffice) 2.37
 
@@ -1107,7 +1110,7 @@ audit: obligations, and what couldn't be verified.
 - Fontsource repackaging of the Google Fonts release (metadata.json: source https://github.com/google/fonts, Google Fonts API version v25, lastModified 2025-09-16); upstream font project: https://github.com/google/fonts/tree/main/ofl/lato.
 - Imported weights/styles: 400, 700, 400-italic (src/css/styles.css @import '@fontsource/lato/<weight>.css'); Vite emits every unicode-range subset of those weights as WOFF2 + WOFF; subsets under 4 KB are inlined as data: URIs in assets/style-*.css instead of separate files.
 - Fonts are redistributed unmodified as published by Fontsource (already subset and converted to WOFF/WOFF2 upstream); OFL-1.1 is satisfied by shipping the copyright notice + license text (texts) with the fonts; fonts may not be sold by themselves.
-- Reserved Font Name "Lato": BentoBook must not modify these files and keep calling the result "Lato"; unmodified redistribution (as here) is fine. Whether Google/Fontsource subsetting already counts as a "Modified Version" under OFL is the usual gray area accepted industry-wide for Google Fonts; nothing BentoBook adds.
+- Reserved Font Name "Lato": PDF Toolbox must not modify these files and keep calling the result "Lato"; unmodified redistribution (as here) is fine. Whether Google/Fontsource subsetting already counts as a "Modified Version" under OFL is the usual gray area accepted industry-wide for Google Fonts; nothing PDF Toolbox adds.
 
 ### Liberation fonts (in LibreOffice) 2.1.5
 
@@ -1119,7 +1122,7 @@ audit: obligations, and what couldn't be verified.
 
 - **In the app via:** BentoPDF public/pdfjs-viewer/standard_fonts and public/pdfjs-annotation-viewer/web/standard_fonts (= pdf.js release zips)
 - **Used for:** pdf.js fallback font for missing (non-embedded) sans-serif/XFA fonts in the two viewers
-- RED FLAG: the LICENSE_LIBERATION shipped next to the fonts (from pdf.js 4.3.136/5.4.296) is the SIL OFL 1.1 of Liberation 2.x, but the files are Liberation Sans 1.07.4 (name table: "Version 1.07.4", "Licensed under the Liberation Fonts license"), i.e. GPLv2 with the font-embedding exception plus Red Hat EULA terms. pdf.js fixed this upstream in commit 4315a4be3168 (2026-08-10, issue #21746), after 5.4.296. BentoBook's notices should carry the 1.07.4 License.txt and GPL-2.0, not the OFL.
+- RED FLAG: the LICENSE_LIBERATION shipped next to the fonts (from pdf.js 4.3.136/5.4.296) is the SIL OFL 1.1 of Liberation 2.x, but the files are Liberation Sans 1.07.4 (name table: "Version 1.07.4", "Licensed under the Liberation Fonts license"), i.e. GPLv2 with the font-embedding exception plus Red Hat EULA terms. pdf.js fixed this upstream in commit 4315a4be3168 (2026-08-10, issue #21746), after 5.4.296. PDF Toolbox's notices should carry the 1.07.4 License.txt and GPL-2.0, not the OFL.
 - GPL-2.0 obligations: offer the corresponding source (the 1.07.4 source tarball above; the TTF is not the preferred form, the SFD sources are) and the licence text. License.txt adds exception (b): distribution in a "physical product" must allow access to/modification of the font source and reinstalling the modified version on that product; and sec. 2: modified redistributions must drop the LIBERATION trademark from file names.
 - SPDX expression approximates the licence: the exception text (a) equals Font-exception-2.0, but exception (b) and the EULA terms (trademark, warranty, North Carolina law) have no SPDX id; Fedora calls it "Liberation".
 - The files are not byte-identical to liberation-fonts-ttf-1.07.4.tar.gz: FontForge-regenerated in 2019 (FFTM), 681 vs 682 glyphs, modified date 2014-05-09 - probably a distro rebuild from the 1.07.4 sources; pdf.js describes them as the unmodified 1.07.4 release. Whether this counts as a modified version (trademark clause) is unresolved.
@@ -1149,7 +1152,7 @@ audit: obligations, and what couldn't be verified.
 - Fontsource repackaging of the Google Fonts release (metadata.json: source https://github.com/google/fonts, Google Fonts API version v33, lastModified 2025-09-02); upstream font project: https://github.com/EbenSorkin/Merriweather4.
 - Imported weights/styles: 400, 700, 400-italic (src/css/styles.css @import '@fontsource/merriweather/<weight>.css'); Vite emits every unicode-range subset of those weights as WOFF2 + WOFF; subsets under 4 KB are inlined as data: URIs in assets/style-*.css instead of separate files.
 - Fonts are redistributed unmodified as published by Fontsource (already subset and converted to WOFF/WOFF2 upstream); OFL-1.1 is satisfied by shipping the copyright notice + license text (texts) with the fonts; fonts may not be sold by themselves.
-- Reserved Font Name "Merriweather": BentoBook must not modify these files and keep calling the result "Merriweather"; unmodified redistribution (as here) is fine. Whether Google/Fontsource subsetting already counts as a "Modified Version" under OFL is the usual gray area accepted industry-wide for Google Fonts; nothing BentoBook adds.
+- Reserved Font Name "Merriweather": PDF Toolbox must not modify these files and keep calling the result "Merriweather"; unmodified redistribution (as here) is fine. Whether Google/Fontsource subsetting already counts as a "Modified Version" under OFL is the usual gray area accepted industry-wide for Google Fonts; nothing PDF Toolbox adds.
 
 ### Noto fonts (in LibreOffice) 2.015 and others
 
@@ -1159,7 +1162,7 @@ audit: obligations, and what couldn't be verified.
 
 ### Noto Naskh Arabic (PDF Editor) 1.00
 
-- **In the app via:** @embedpdf/fonts-arabic@1.0.0 (npm pack by BentoBook tools/webapp.sh, one file extracted; file named in BentoPDF src/js/config/editor-fonts.ts)
+- **In the app via:** @embedpdf/fonts-arabic@1.0.0 (npm pack by PDF Toolbox tools/webapp.sh, one file extracted; file named in BentoPDF src/js/config/editor-fonts.ts)
 - **Used for:** PDF Editor (EmbedPDF) fallback font, fetched via VITE_EMBEDPDF_FONTS_URL to draw text whose font a PDF does not embed (Arabic)
 - License mismatch: package.json and LICENSE say OFL-1.1, but the font's own name table (IDs 13/14) says 'Licensed under the Apache License, Version 2.0'. This is an old (v1.00, 2014) Noto build from Google's Apache-2.0 era; later Noto releases are OFL-1.1. The Apache-2.0 grant embedded in the file is the verifiable one, so it is recorded here; both texts are listed (package LICENSE as shipped by the package). Both are permissive; no practical conflict.
 - Exact upstream file/commit (googlefonts/noto-fonts history) not identified.
@@ -1174,7 +1177,7 @@ audit: obligations, and what couldn't be verified.
 
 ### Noto Sans (PDF Editor) 2.015
 
-- **In the app via:** @embedpdf/fonts-latin@1.0.0 (npm pack by BentoBook tools/webapp.sh, one file extracted; file named in BentoPDF src/js/config/editor-fonts.ts)
+- **In the app via:** @embedpdf/fonts-latin@1.0.0 (npm pack by PDF Toolbox tools/webapp.sh, one file extracted; file named in BentoPDF src/js/config/editor-fonts.ts)
 - **Used for:** PDF Editor (EmbedPDF) fallback font, fetched via VITE_EMBEDPDF_FONTS_URL to draw text whose font a PDF does not embed (Latin, Greek, Cyrillic, Vietnamese)
 - The package's LICENSE (identical in all three @embedpdf/fonts-* packages) has a generic header 'Copyright 2014-2021 Adobe ... Copyright 2014-2021 Google Inc ..., with Reserved Font Name 'Noto Sans'' that does not match this font's own copyright line; the upstream OFL.txt of Noto Sans v2.015 (correct header) is reproduced as well.
 - Not byte-identical to any NotoSans-Regular.ttf in the notofonts NotoSans-v2.015 release zip (hinted 621572, unhinted 431364, full 825628 bytes vs 629024 here); probably a Google Fonts static instance. Version and copyright from the font's name table.
@@ -1182,7 +1185,7 @@ audit: obligations, and what couldn't be verified.
 
 ### Noto Sans Hebrew (PDF Editor) 1.02
 
-- **In the app via:** @embedpdf/fonts-hebrew@1.0.0 (npm pack by BentoBook tools/webapp.sh, one file extracted; file named in BentoPDF src/js/config/editor-fonts.ts)
+- **In the app via:** @embedpdf/fonts-hebrew@1.0.0 (npm pack by PDF Toolbox tools/webapp.sh, one file extracted; file named in BentoPDF src/js/config/editor-fonts.ts)
 - **Used for:** PDF Editor (EmbedPDF) fallback font, fetched via VITE_EMBEDPDF_FONTS_URL to draw text whose font a PDF does not embed (Hebrew)
 - License mismatch: package.json and LICENSE say OFL-1.1, but the font's own name table (IDs 13/14) says 'Licensed under the Apache License, Version 2.0' (old v1.02 Noto build, Apache-2.0 era). Recorded as Apache-2.0; both texts listed. Both permissive.
 - Exact upstream file/commit not identified.
@@ -1249,7 +1252,7 @@ audit: obligations, and what couldn't be verified.
 ### Phosphor Icons 2.1.2
 
 - **In the app via:** @phosphor-icons/web (BentoPDF dependency: import '@phosphor-icons/web/regular')
-- **Used for:** UI icons in the app shell (src/js/main.ts), the Workflow Builder and Edit PDF Text
+- **Used for:** UI icons in the app shell (src/js/main.ts), the Workflow Builder and Edit PDF Text; the sidebar's icons
 - The four font files are byte-identical to src/regular/Phosphor.{woff2,woff,ttf,svg} in the package (CRC32 compared). Font name table: copyright "Phosphor Icons", designers "Tobias Fried & Helena Zhang", license "MIT".
 - Also in Vite's report as MIT, but that report covers only the JS/CSS import, not the emitted font files.
 
@@ -1285,9 +1288,9 @@ audit: obligations, and what couldn't be verified.
 
 ## Trademarks
 
-BentoBook is an independent project, not made, endorsed or supported by the BentoPDF
+PDF Toolbox is an independent project, not made, endorsed or supported by the BentoPDF
 authors, Google or the makers of the components above. BentoPDF is the name of the
 BentoPDF authors' project. Googlebook and Android are trademarks of Google LLC.
 LibreOffice is a registered trademark of The Document Foundation. Ghostscript and
 MuPDF are trademarks of Artifex Software, Inc. Other names are trademarks of their
-owners, used only to say what BentoBook contains.
+owners, used only to say what PDF Toolbox contains.

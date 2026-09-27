@@ -61,11 +61,11 @@ def docx(path, paragraphs):
 
 if __name__ == "__main__":
     OUT.mkdir(exist_ok=True)
-    pdf(OUT / "BentoBook Test A.pdf", "BentoBook test A",
+    pdf(OUT / "PDF Toolbox Test A.pdf", "PDF Toolbox test A",
         ["The quick brown fox jumps over the lazy dog.", "Page one of the merge test."])
-    pdf(OUT / "BentoBook Test B.pdf", "BentoBook test B",
+    pdf(OUT / "PDF Toolbox Test B.pdf", "PDF Toolbox test B",
         ["Pack my box with five dozen liquor jugs.", "Page two of the merge test."])
-    docx(OUT / "BentoBook Test Letter.docx",
-         ["BentoBook test letter", "This Word document was converted to PDF by LibreOffice,",
-          "running as WebAssembly inside BentoBook, offline."])
+    docx(OUT / "PDF Toolbox Test Letter.docx",
+         ["PDF Toolbox test letter", "This Word document was converted to PDF by LibreOffice,",
+          "running as WebAssembly inside PDF Toolbox, offline."])
     print(OUT)

@@ -1,29 +1,50 @@
-# Testing BentoBook
+# Testing PDF Toolbox
 
-`./bb smoke` (tools/smoke.py) runs the main engines end to end on the device:
-it opens Merge, Compress, PDF to Word, PDF to PDF/A, OCR and Word to PDF, gives
-each the test files, presses its button, waits for the result in Download/
-and deletes it again. The same script runs in the x86_64 workflow, in Google's
+`./ptb smoke` (tools/smoke.py) runs the main engines end to end on the device:
+it opens Merge, Compress, PDF to Word, PDF to PDF/A, OCR and Word to PDF in the
+sidebar's frame, gives each the test files, presses its button, waits for the
+result in Download/ and deletes it again. The same script runs in the x86_64 workflow, in Google's
 x86_64 Android 16 emulator (`--slow`).
 
 `python3 tools/testfiles.py` writes test files to test/ (two one-page PDFs
 with real text and a Word document). With DevTools on
-(`./bb debug devtools on`), `./bb incoming FILE…` hands files to the app as if
-shared, `./bb debug open /TOOL` opens a tool, and `./bb cdp eval` can press
+(`./ptb debug devtools on`), `./ptb incoming FILE…` hands files to the app as if
+shared, `./ptb debug open /TOOL` opens a tool, and `./ptb cdp eval` can press
 its button (`document.getElementById('process-btn').click()`).
 
 `python3 tools/survey.py` drops a test PDF into each of the 79 PDF tool
-pages and reports the compact header, the page height against the window's
+pages, in the sidebar's frame, and reports the compact header, the page height against the window's
 and whether the tool's button is in view, plus every request that failed,
 from the page or its workers. The app has no INTERNET permission, so a URL
 off the app's origin in that list is a missing offline file. Run it after
 updating BentoPDF.
 
+## Checked for 0.6 (2026-09-27)
+
+On the HP Googlebook 14 (Arm, Android 17, WebView 153.0.8010.39), with the
+tools in the sidebar's frame (1100x788 px in the 1359x876 px window).
+
+| Check | Result |
+| --- | --- |
+| `./ptb smoke` | all six pass: Merge (1,319 bytes), Compress (759), PDF to Word (36,848), PDF/A (11,289), OCR (9,526), Word to PDF (10,110), 7 to 12 s each; `crossOriginIsolated` and SharedArrayBuffer true in the frame |
+| Layout survey (tools/survey.py) | 79 PDF tools: 76 fold into the compact header, 70 end exactly at the frame's bottom, none is wider than the frame, no request failed. Add Page Labels, Bates Numbering, Edit Metadata, Booklet, PDF to CBZ, PDF to Text and Posterize are long forms that scroll (836 to 1,188 px); Add Watermark and Edit Bookmarks are full pages that scroll |
+| Full-height tools | the PDF Multi Tool fills the frame with two PDFs (toolbar at the top, its own header hidden); the Workflow Builder, Edit PDF Text, the PDF Editor, Sign and Crop fit it with their buttons in view |
+| Sidebar | 7 categories and 118 tools from BentoPDF's tools.ts; Recent keeps the last five; the marked tool, the window title and the URL's hash follow the frame |
+| Search | "sign" finds Sign PDF, Digital Signature and Validate Signature, "word" Word to PDF and PDF to Word only; Enter opens the first match and moves the focus into the tool |
+| Rail, narrow window | Ctrl+B and the button fold the sidebar into the icon rail, with flyouts and names on hover; in an 820 px viewport (CDP emulation) the rail shows and the button opens the sidebar over the tool |
+| Keys in a tool | Ctrl+K and Ctrl+B pressed with the focus in the tool's page reach the sidebar (CDP key events) |
+| Back | back from Compress returns to Merge, then to the tool list, and the sidebar follows |
+| About & licenses | open in the frame without their own way back; the sidebar keeps About marked on Licenses |
+| Links out of the app | a link in the frame to another app is handed to Android, and the frame stays |
+| Open with / Share | `./ptb incoming` shows the file's bar on the tool list; Merge PDF took the file when opened from the sidebar |
+| Print (Markdown to PDF) | the tool's Print puts a copy of its page in the sidebar page and asks the app to print "Markdown to PDF – PDF Toolbox"; with print media, only the formatted document shows; the sidebar comes back afterwards. (The test caught the app message, so no print dialog opened) |
+| Rename | installs as `local.pdftoolbox`, signed with the same key as BentoBook 0.5; BentoBook was uninstalled afterwards |
+
 ## Checked for 0.5 (2026-09-27)
 
 | Check | Result |
 | --- | --- |
-| `./bb smoke` on an HP Googlebook 14 (Arm, Android 17, WebView 153.0.8010.39) | all six pass: Merge (merged.pdf), Compress, PDF to Word (.docx), PDF/A, OCR (searchable PDF), Word to PDF (LibreOffice), 7 to 12 s each |
+| `./ptb smoke` on an HP Googlebook 14 (Arm, Android 17, WebView 153.0.8010.39) | all six pass: Merge (merged.pdf), Compress, PDF to Word (.docx), PDF/A, OCR (searchable PDF), Word to PDF (LibreOffice), 7 to 12 s each |
 | Files dropped from the APK (the web root's CoherentPDF copy, cpdf's Node builds, Tesseract's non-single-file builds, unused badges) | Merge (CoherentPDF) and OCR (Tesseract) still pass; the APK is 188 MB (0.4: 196 MB) |
 | No native code | no `lib/` or `.so` in the APK; `aapt2 dump badging` shows no native-code line, so every ABI installs it |
 | Release key | APK Signature Scheme v3, certificate SHA-256 98:70:15:C8:…:DB:C3:D0; 0.4 (old key) had to be uninstalled first, as expected |
@@ -60,12 +81,15 @@ updating BentoPDF.
 ## For a person (not automatable here)
 
 - [ ] Pick files in the file picker; several at once in Merge.
-- [ ] Open a PDF with BentoBook from Files; share a Word file to it.
+- [ ] Open a PDF with PDF Toolbox from Files; share a Word file to it.
 - [ ] Drag a PDF from Files onto a tool's drop area.
 - [ ] Open and Show on the saved bar.
-- [ ] Print from the Markdown to PDF editor.
-- [ ] Back gesture/key goes back a page; the window resizes cleanly.
-- [ ] With `./bb live-resize` on: drag a window edge; the page follows
+- [ ] Print from the Markdown to PDF editor: the print dialog shows only the
+      formatted document, and the sidebar comes back when it closes.
+- [ ] Back gesture/key goes back to the previous tool; the window resizes
+      cleanly, and below 960 px the sidebar folds into the rail.
+- [ ] Ctrl+K and Ctrl+B on the keyboard, with the focus in a tool too.
+- [ ] With `./ptb live-resize` on: drag a window edge; the page follows
       live, no veil (`adb logcat | grep TaskPositioner` names
       `ResizeTaskPositioner`, not `MultiDisplayVeiledResizeTaskPositioner`).
       Try it on Sign and Crop too.

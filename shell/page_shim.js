@@ -1,13 +1,24 @@
 // SPDX-License-Identifier: MIT
-// BentoBook page shim. The app injects it at document start into every
-// page of its own origin. `bentobook` is the app's message channel
+// PDF Toolbox page shim. The app injects it at document start into every
+// page of its own origin. `pdftoolbox` is the app's message channel
 // (WebViewCompat.addWebMessageListener).
 (() => {
   'use strict';
-  if (window.__bentobook) return;
-  window.__bentobook = true;
+  if (window.__pdftoolbox_shim) return;
+  window.__pdftoolbox_shim = true;
   const isTop = window.top === window;
-  const host = () => window.bentobook;
+  // The app's window is the sidebar page (/toolbox/, shell/app.html) with the
+  // tool in its frame. The tool's page gets the file handling and the compact
+  // layout: in that frame, or on its own at the top.
+  const shellPath = /^\/toolbox\/(index\.html)?$/;
+  const isShell = isTop && shellPath.test(location.pathname);
+  let inShell = false;
+  try {
+    inShell = !isTop && window.parent === window.top && shellPath.test(window.parent.location.pathname);
+  } catch { /* a cross-origin parent */ }
+  const toolFrame = !isShell && (isTop || inShell);
+  const shell = () => (inShell ? window.parent.__pdftoolbox : null);
+  const host = () => window.pdftoolbox;
   const send = (msg) => host() && host().postMessage(JSON.stringify(msg));
 
   // 1. No service worker: the files are local already, and WebView would not
@@ -15,7 +26,7 @@
   if (navigator.serviceWorker) {
     try {
       Object.defineProperty(navigator.serviceWorker, 'register', {
-        value: () => Promise.reject(new DOMException('Not needed in BentoBook', 'NotSupportedError')),
+        value: () => Promise.reject(new DOMException('Not needed in PDF Toolbox', 'NotSupportedError')),
         configurable: true,
       });
     } catch { /* leave it */ }
@@ -81,15 +92,16 @@
     if (a && saveLink(a)) event.preventDefault();
   }, true);
 
-  // 4. window.print() (the Markdown editor's Print) goes to Android printing.
-  if (isTop) {
-    window.print = () => send({ type: 'print', title: document.title });
+  // 4. window.print() (the Markdown editor's Print) goes to Android printing;
+  //    in the frame, through the sidebar page, which prints a copy of this one.
+  if (toolFrame) {
+    window.print = () => (shell() ? shell().print() : send({ type: 'print', title: document.title }));
   }
 
-  // 5. Files opened with or shared to BentoBook. Every tool is its own page,
+  // 5. Files opened with or shared to PDF Toolbox. Every tool is its own page,
   //    so the app keeps them and hands them to each page as it loads, until a
   //    tool's file input takes them, exactly as if they had been picked.
-  if (isTop) {
+  if (toolFrame) {
     let incoming = [];
     let current = null;
     const accepts = (input, files) => {
@@ -114,11 +126,11 @@
       banner();
     };
     const banner = () => {
-      let bar = document.getElementById('bentobook-incoming');
+      let bar = document.getElementById('pdftoolbox-incoming');
       if (!incoming.length) { if (bar) bar.remove(); return; }
       if (!bar) {
         bar = document.createElement('div');
-        bar.id = 'bentobook-incoming';
+        bar.id = 'pdftoolbox-incoming';
         bar.style.cssText = 'position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:2147483647;'
           + 'background:#1f2937;color:#f9fafb;border:1px solid #6366f1;border-radius:10px;padding:10px 14px;'
           + 'font:14px system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.4);display:flex;gap:12px;align-items:center';
@@ -177,7 +189,7 @@
   //    a full page already (Edit PDF Text, Bookmarks, Watermark) are left
   //    alone. Removing the file, or the tool dropping its workspace, restores
   //    the page.
-  if (isTop) {
+  if (toolFrame) {
     let state = null;
     let queued = false;
     const css = (el, props) => {
@@ -186,7 +198,7 @@
       return old;
     };
     const flowing = (el) => {
-      if (!(el instanceof HTMLElement) || el.id === 'bentobook-toolbar') return false;
+      if (!(el instanceof HTMLElement) || el.id === 'pdftoolbox-toolbar') return false;
       if (/^(SCRIPT|STYLE|TEMPLATE|LINK|META)$/.test(el.tagName) || !el.offsetHeight) return false;
       const pos = getComputedStyle(el).position;
       return pos !== 'fixed' && pos !== 'absolute';
@@ -197,7 +209,7 @@
     const workspaceFor = (drop) => {
       const below = drop.offsetHeight ? drop.getBoundingClientRect().bottom - 1 : -Infinity;
       return [...document.body.querySelectorAll('div, section')].find((e) =>
-        e.offsetHeight >= innerHeight * 0.5 && !e.contains(drop) && e.id !== 'bentobook-toolbar'
+        e.offsetHeight >= innerHeight * 0.5 && !e.contains(drop) && e.id !== 'pdftoolbox-toolbar'
         && e.getBoundingClientRect().top >= below);
     };
     // Its resizable part: the viewer box with a fixed height (h-[75vh],
@@ -357,7 +369,7 @@
         if (Object.keys(props).length) styled.push([n, css(n, props)]);
       }
       const bar = document.createElement('div');
-      bar.id = 'bentobook-toolbar';
+      bar.id = 'pdftoolbox-toolbar';
       bar.style.cssText = 'position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;'
         + 'height:48px;padding:0 12px;background:#1f2937;border-bottom:1px solid #374151;'
         + 'color:#e5e7eb;font-family:inherit;font-size:14px;line-height:1.2;box-sizing:border-box';
@@ -373,7 +385,8 @@
       const change = button(input.multiple ? 'Add files' : 'Change file',
         input.multiple ? 'Add more files' : 'Open another file', () => input.click());
       const details = button('Details', 'Show the tool description and the drop zone', () => setExpanded(!state.expanded));
-      bar.append(back, name, file, change, details);
+      // In the app's frame the sidebar is the way back.
+      bar.append(...(inShell ? [] : [back]), name, file, change, details);
       document.body.prepend(bar);
       const flex = viewer ? resizable(ws) : null;
       const pic = viewer && !flex ? picture(ws) : null;
@@ -455,14 +468,14 @@
   // 7. "About & licenses" in BentoPDF's top bar, on every page: Simple Mode
   //    drops the footer, which is where BentoPDF shows its legal notices, and
   //    the AGPL wants them in reach of every screen. The page itself is
-  //    BentoBook's (/bentobook/about.html, written by tools/licenses.py).
-  if (isTop && !location.pathname.startsWith('/bentobook/')) {
+  //    PDF Toolbox's (/toolbox/about.html, written by tools/licenses.py).
+  if (isTop && !isShell && !location.pathname.startsWith('/toolbox/')) {
     const addAbout = () => {
       const row = document.querySelector('nav[data-simple-nav] .h-16') || document.querySelector('body > nav .h-16');
-      if (!row || row.querySelector('#bentobook-about')) return;
+      if (!row || row.querySelector('#pdftoolbox-about')) return;
       const a = document.createElement('a');
-      a.id = 'bentobook-about';
-      a.href = '/bentobook/about.html';
+      a.id = 'pdftoolbox-about';
+      a.href = '/toolbox/about.html';
       a.textContent = 'About & licenses';
       a.style.cssText = 'margin-left:auto;padding:6px 10px;border-radius:8px;color:#9ca3af;font-size:14px;'
         + 'text-decoration:none;white-space:nowrap';
@@ -474,7 +487,30 @@
     else addAbout();
   }
 
-  // 8. Page colour for the window caption: the theme-color meta tag, else the
+  // 8. In the app's frame: the sidebar replaces BentoPDF's top bar, its
+  //    breadcrumb, the tools' "Back to Tools" and the PDF Multi Tool's header
+  //    (the brand and Close), so the tool gets the frame's full height, and
+  //    the About and Licenses pages' way back to the tools; and the sidebar's
+  //    keys (Ctrl+K search, Ctrl+B show or hide the menu) work while the tool
+  //    has the focus.
+  if (inShell) {
+    const style = document.createElement('style');
+    style.textContent = 'nav[data-simple-nav], nav[data-bentopdf-breadcrumb], [id^="back-to-tools"], '
+      + 'body > nav:has(#close-tool-btn) { display: none !important; }'
+      + (location.pathname.startsWith('/toolbox/')
+        ? 'nav.top a[href="/"], nav.top:not(:has(> :not(a[href="/"]))) { display: none !important; }' : '');
+    (document.head || document.documentElement).appendChild(style);
+    window.addEventListener('keydown', (e) => {
+      const k = String(e.key || '').toLowerCase();
+      if (!(e.ctrlKey || e.metaKey) || e.altKey || e.shiftKey || (k !== 'k' && k !== 'b')) return;
+      if (shell() && shell().key({ key: e.key, ctrlKey: e.ctrlKey, metaKey: e.metaKey })) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+      }
+    }, true);
+  }
+
+  // 9. Page colour for the window caption: the theme-color meta tag, else the
   //    background of the page's top edge.
   if (isTop) {
     let last = '';
@@ -493,6 +529,8 @@
       return hex(getComputedStyle(document.documentElement).backgroundColor) || '#ffffff';
     };
     const report = () => {
+      // Not the copy the sidebar page shows while the print dialog is open.
+      if (document.documentElement.classList.contains('printing')) return;
       const color = topColor();
       if (color === last) return;
       last = color;

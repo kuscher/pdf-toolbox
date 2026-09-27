@@ -1,18 +1,20 @@
-# BentoBook design
+# PDF Toolbox design
+
+PDF Toolbox was called PDF Toolbox up to 0.5.
 
 BentoPDF is a static web app: every tool runs in the browser, with its
-engines compiled to WebAssembly. BentoBook serves an offline build of it
+engines compiled to WebAssembly. PDF Toolbox serves an offline build of it
 from the APK into a WebView and adds what a browser tab would get from
 Chrome: the file picker, downloads, "Open with", printing and a proper
 window. Nothing runs in the Linux VM, and the app has no INTERNET
 permission.
 
 ```
-BentoBook.apk
+PDFToolbox.apk
 ├── assets/web/        BentoPDF v2.8.8, simple mode, air-gapped build
 │   ├── wasm/          PyMuPDF (Pyodide), Ghostscript, CoherentPDF, Tesseract + English data
 │   └── libreoffice-wasm/   LibreOffice 24.8 (Emscripten, threads)
-│   └── bentobook/     About & licenses (tools/licenses.py)
+│   └── toolbox/       the window: sidebar page, About & licenses, icons
 ├── assets/shell/page_shim.js   injected into every page at document start
 └── classes.dex        MainActivity, Web (asset server), Downloads, Store
 ```
@@ -33,7 +35,7 @@ side in CI (below).
   at the app's origin (the URLs are baked in; workers load them with
   `importScripts`, so they must be same-origin). The engines are laid out the
   way the bundle's `setup.sh` does it. The result is cached in
-  `~/.cache/bentobook/web-<version>`.
+  `~/.cache/pdf-toolbox/web-<version>`.
 
   | Package | Version | Where |
   | --- | --- | --- |
@@ -122,10 +124,63 @@ worker starts from a Blob of the script, with the same options. After that,
 Word to PDF works: LibreOffice loads, and `lok_documentSaveAs` writes the PDF.
 Other tools start their workers from the page, which works as is.
 
+## The sidebar and the frame (shell/app.html)
+
+The app's window is PDF Toolbox's own page, `/toolbox/` (shell/app.html,
+app.css, app.js): a sidebar with every tool, and an iframe (`name="view"`)
+filling the rest of the window at full height, in which BentoPDF's pages open.
+Each tool gets a viewport of its own, so pages sized to the window (the PDF
+Multi Tool's `h-[100dvh]`, the Workflow Builder's `h-screen`, viewers sized in
+`vh`) fit the pane without knowing about the sidebar, and nothing `fixed` ends
+up under it.
+
+- **The tool list** comes from BentoPDF's own `src/js/config/tools.ts`: seven
+  categories, 118 tools, each with its page, name, Phosphor icon and
+  description. tools/navdata.py writes `toolbox/tools.js` at build time and
+  fails if the list comes out empty, so a BentoPDF update that changes that
+  file can't ship an empty menu. Phosphor's icon font, which BentoPDF uses
+  too, is copied from its npm package.
+- **Navigation:** the tools are plain links with `target="view"`. Each time
+  the frame loads, app.js marks the tool, adds it to Recent (localStorage),
+  sets the window title and writes the frame's path into its own hash
+  (`/toolbox/#/merge-pdf`), which a restored window, or `./ptb debug open
+  PATH`, opens again. It tells the app ("nav") so Back is enabled: the frame's
+  pages are in the WebView's history.
+- **Collapsing:** Ctrl+B or the button folds the sidebar into a 56 px icon
+  rail; a category's icon opens its tools in a flyout, and names show on
+  hover. Below 960 px the sidebar is always the rail and opens over the tool.
+  The choices are kept in localStorage.
+- **Search** (Ctrl+K): each word typed has to start a word of a tool's name
+  ("sign" finds Sign PDF and Digital Signature; "word" doesn't find Remove
+  Password); when no name matches, the description and category count too
+  ("secure", "convert"). The arrow keys and Enter pick.
+- **In the frame** (page shim, section 8): BentoPDF's top bar, its
+  breadcrumb, the tools' "Back to Tools" and the PDF Multi Tool's header (the
+  brand and Close) are hidden, and so are the compact header's "← Tools" and
+  the About and Licenses pages' way back: the sidebar is the way around. Ctrl+K
+  and Ctrl+B are forwarded to the sidebar. The shim's tool features
+  (incoming files, the compact layout, printing) run in the tool's page, in the
+  frame or at the top when a page is opened on its own, but not in the sidebar
+  page or in viewers nested inside a tool.
+- **The app's side:** the message channel takes messages from every frame of
+  the app's origin (the tools live in a subframe, and replies go to the frame
+  that asked). Links out of the app are handed to Android from the frame too:
+  `shouldOverrideUrlLoading` sees subframe navigations. "Open with" and "Share" have the sidebar page poke the tool
+  (`__pdftoolbox.poke()`), which then asks for the files on its own channel.
+- **Printing:** Android prints a WebView's top page, not a frame. For the
+  Markdown editor's Print, the sidebar page puts a copy of the tool's page (its
+  stylesheets, print rules included, and its body) in place of the sidebar and
+  the frame, asks the app to print (the job is named after the tool), and
+  restores itself when the print dialog closes. The window caption keeps its
+  colour meanwhile.
+- **Branding:** BentoPDF's own `VITE_BRAND_NAME` and `VITE_BRAND_LOGO`
+  (tools/webapp.sh) put PDF Toolbox's name and icon where BentoPDF shows its
+  own: the home page's title and the PDF Multi Tool's header.
+
 ## The page shim (shell/page_shim.js)
 
 Injected at document start into every page of the app's origin, with a
-`bentobook` message channel (`addWebMessageListener`):
+`pdftoolbox` message channel (`addWebMessageListener`):
 
 - **Downloads.** BentoPDF saves with `<a download href="blob:…">` and
   revokes the URL at once, which native code can't fetch. The shim keeps
@@ -171,10 +226,11 @@ Injected at document start into every page of the app's origin, with a
     file, or the tool dropping its workspace, restores it; a viewer that
     appears after the file card switches to viewer mode.
 - **`window.print()`** (Markdown editor) goes to Android printing via
-  `WebView.createPrintDocumentAdapter`.
+  `WebView.createPrintDocumentAdapter`; from the frame, through the sidebar
+  page (above).
 - **Standalone display mode** for `matchMedia('(display-mode: …)')`.
-- **Caption colour:** the colour at the top edge of the page, reported
-  every 1.5 s when it changes.
+- **Caption colour:** the colour at the top edge of the window's page,
+  reported every 1.5 s when it changes.
 
 ## The window
 
@@ -196,8 +252,8 @@ Injected at document start into every page of the app's origin, with a
   otherwise `ResizeTaskPositioner` resizes it live. The change is disabled
   by default and `@Overridable`; Google turns it on for Chrome, Gmail, Docs
   and a few more through the `app_compat_overrides` device config. There is
-  no manifest property for it. `./bb live-resize` sets the override for
-  BentoBook over adb (`am compat enable`, allowed on a release build for an
+  no manifest property for it. `./ptb live-resize` sets the override for
+  PDF Toolbox over adb (`am compat enable`, allowed on a release build for an
   overridable change); it survives app updates. SystemUI chooses when it
   decorates a window, so it applies to windows opened afterwards, and its
   log names the positioner (`adb logcat | grep TaskPositioner`). During a
@@ -225,15 +281,16 @@ source, and the texts ship in the APK:
   tools/webapp.sh turns on by putting a `vite.config.mjs` next to BentoPDF's
   config) plus the packages only BentoPDF's workers import, which that report
   leaves out. Packages that ship no license file get one from `licenses/npm/`.
-- build.sh runs it: it writes the app's `/bentobook/about.html` and
+- build.sh runs it: it writes the app's `/toolbox/about.html` and
   `licenses.html` with every text, and THIRD_PARTY_NOTICES.md and
   licenses/javascript-packages.txt in the repository. It stops the build when a
   file in the site that is an engine, data or a font belongs to no component,
   so an engine a BentoPDF update adds can't ship unlisted.
-- The page shim puts **About & licenses** in BentoPDF's top bar on every page:
-  Simple Mode hides BentoPDF's footer, and the AGPL wants the notices in reach.
+- **About & licenses** is at the bottom of the sidebar, in reach of every
+  screen: Simple Mode hides BentoPDF's footer, and the AGPL wants the notices in
+  reach. A tool's page opened on its own gets the link in BentoPDF's top bar.
 
-BentoBook's own code is MIT. The app contains AGPL-3.0 parts (BentoPDF,
+PDF Toolbox's own code is MIT. The app contains AGPL-3.0 parts (BentoPDF,
 PyMuPDF/MuPDF, Ghostscript, CoherentPDF, the PDFium editor engine), so the APK
 as a whole goes out under the AGPL-3.0 with its source: each release carries a
 source archive (tools/release.sh) with this repository, BentoPDF at the pinned
@@ -245,15 +302,15 @@ THIRD_PARTY_NOTICES.md points to the exact upstream source of everything else.
 
 ## Signing and releases
 
-The release key is in `~/.config/bentobook` (`keystore.jks`, `keystore.pass`),
+The release key is in `~/.config/pdf-toolbox` (`keystore.jks`, `keystore.pass`),
 never in the repository; without it build.sh signs with a test key. 0.1 to 0.4
 were signed with a key that was in the repository; it was taken out of the
 history and retired, so 0.5 can't update those installs.
 
-`tools/release.sh` (`./bb release [--publish]`) checks that build/BentoBook.apk
+`tools/release.sh` (`./ptb release [--publish]`) checks that build/PDFToolbox.apk
 has the manifest's version and the release key's certificate, then writes
-`BentoBook.apk` (the same name in every release, so
-`releases/latest/download/BentoBook.apk` is a stable link), the source archive,
+`PDFToolbox.apk` (the same name in every release, so
+`releases/latest/download/PDFToolbox.apk` is a stable link), the source archive,
 `SHA256SUMS` and the release notes (from CHANGELOG.md) to
 `executables/release-<version>/`, and with `--publish` tags the commit and
 makes the GitHub release.
@@ -281,11 +338,11 @@ to PDF is skipped there; it runs on the Googlebook.
 
 ## Debugging
 
-`./bb debug devtools on` turns on WebView debugging (off by default),
-after which `./bb cdp eval JS` runs JavaScript in the page. The debug
+`./ptb debug devtools on` turns on WebView debugging (off by default),
+after which `./ptb cdp eval JS` runs JavaScript in the page. The debug
 receiver needs `android.permission.DUMP`, so only the shell can use it:
 `dump`, `reload`, `open PATH`, `devtools on|off`, `crash`, and `incoming`
-(`./bb incoming FILE…`), which saves files to Download and offers them as if
+(`./ptb incoming FILE…`), which saves files to Download and offers them as if
 shared: the shell can't grant the app another user's files.
 
 ## Updating BentoPDF

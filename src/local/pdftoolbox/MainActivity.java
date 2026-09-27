@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-package local.bentobook;
+package local.pdftoolbox;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -51,7 +51,7 @@ import java.util.concurrent.Executors;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-/** The BentoBook window: BentoPDF in a WebView, with Android's files, downloads and printing. */
+/** The PDF Toolbox window: BentoPDF in a WebView, with Android's files, downloads and printing. */
 public class MainActivity extends Activity {
   static final String TAG = Web.TAG;
   private static final int REQ_FILES = 1;
@@ -116,8 +116,13 @@ public class MainActivity extends Activity {
     super.onNewIntent(intent);
     setIntent(intent);
     takeIncoming(intent);
-    web.evaluateJavascript("window.bentobook && window.bentobook.postMessage("
-        + "JSON.stringify({type:'ready'}))", null);
+    offerToTool();
+  }
+
+  /** Asks the tool in the sidebar page's frame to take the waiting files. */
+  private void offerToTool() {
+    web.evaluateJavascript("window.__pdftoolbox ? window.__pdftoolbox.poke() : window.pdftoolbox"
+        + " && window.pdftoolbox.postMessage(JSON.stringify({type:'ready'}))", null);
   }
 
   @Override
@@ -242,7 +247,9 @@ public class MainActivity extends Activity {
         offerIncoming(reply);
       }
       case "incoming.used" -> incoming.clear();
-      case "print" -> print(m.optString("title", "BentoPDF"));
+      case "print" -> print(m.optString("title", getString(R.string.app_name)));
+      // The frame moved to another tool: Back may have something to go back to.
+      case "nav" -> updateBack();
       default -> { }
     }
   }
@@ -504,9 +511,9 @@ public class MainActivity extends Activity {
   // ---- Debug commands, for testing over adb ----
 
   /**
-   * adb shell am broadcast -a local.bentobook.DEBUG -p local.bentobook --es cmd ...
+   * adb shell am broadcast -a local.pdftoolbox.DEBUG -p local.pdftoolbox --es cmd ...
    * Only the shell can send these: the receiver requires android.permission.DUMP,
-   * which apps can't hold. ./bb wraps them.
+   * which apps can't hold. ./ptb wraps them.
    */
   private void registerDebugCommands() {
     debug = new BroadcastReceiver() {
@@ -522,12 +529,12 @@ public class MainActivity extends Activity {
             Log.i(TAG, "devtools " + on);
           }
           case "reload" -> web.reload();
-          case "open" -> web.loadUrl(Web.ORIGIN + intent.getStringExtra("path"));
+          case "open" -> web.loadUrl(Web.HOME + "#" + intent.getStringExtra("path"));
           case "dump" -> Log.i(TAG, "state url=" + web.getUrl() + " title=" + web.getTitle()
               + " isolationAllowlist=" + isolated + " incoming=" + incoming.size());
           case "crash" -> web.loadUrl("chrome://crash");
           case "incoming" -> {
-            // Test files, as if shared to BentoBook: saved to Download (the
+            // Test files, as if shared to PDF Toolbox: saved to Download (the
             // shell can't grant this app another user's files), then offered.
             String name = intent.getStringExtra("name");
             byte[] bytes = android.util.Base64.decode(intent.getStringExtra("b64"), android.util.Base64.DEFAULT);
@@ -542,8 +549,7 @@ public class MainActivity extends Activity {
                 main.post(() -> {
                   incoming.add(uri);
                   Log.i(TAG, "incoming test file " + name + " -> " + uri);
-                  web.evaluateJavascript("window.bentobook && window.bentobook.postMessage("
-                      + "JSON.stringify({type:'ready'}))", null);
+                  offerToTool();
                 });
               } catch (IOException e) {
                 Log.w(TAG, "incoming test file failed", e);
@@ -554,7 +560,7 @@ public class MainActivity extends Activity {
         }
       }
     };
-    registerReceiver(debug, new IntentFilter("local.bentobook.DEBUG"),
+    registerReceiver(debug, new IntentFilter("local.pdftoolbox.DEBUG"),
         android.Manifest.permission.DUMP, null, Context.RECEIVER_EXPORTED);
   }
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""BentoBook's license notices: every part of the app, its license, its
+"""PDF Toolbox's license notices: every part of the app, its license, its
 copyright holders and where its source is.
 
     python3 tools/licenses.py [--web DIR] [--app DIR]
@@ -16,8 +16,8 @@ Reads
                              only BentoPDF's workers use are added here
 Writes
   THIRD_PARTY_NOTICES.md and licenses/javascript-packages.txt, in the repo
-  with --app DIR: the app's /bentobook/ pages (about.html, licenses.html and
-  the texts), which the APK serves at https://appassets.androidplatform.net/bentobook/
+  with --app DIR: the app's /toolbox/ pages (about.html, licenses.html and
+  the texts), which the APK serves at https://appassets.androidplatform.net/toolbox/
 
 It fails when an engine, data or font file in the web build belongs to no
 component, so a new engine in a BentoPDF update can't ship unlisted, and when
@@ -39,7 +39,7 @@ LICENSES = os.path.join(ROOT, "licenses")
 BINARY = re.compile(r"\.(wasm|data|gz|whl|zip|tar|traineddata|ttf|otf|woff2?|pfb|bcmap|icc|so)$", re.I)
 LICENSE_FILE = re.compile(r"^(un)?licen[cs]e|^copying|^notice", re.I)
 GROUPS = [
-    ("app", "BentoPDF and BentoBook"),
+    ("app", "BentoPDF and PDF Toolbox"),
     ("engine", "Engines"),
     ("data", "Data and fonts"),
     ("web", "Web components"),
@@ -268,9 +268,9 @@ def app_pages(out, info, comps, pkgs, attributions):
     if os.path.isdir(out):
         shutil.rmtree(out)
     os.makedirs(os.path.join(out, "licenses"))
-    shutil.copy(os.path.join(ROOT, "shell", "bentobook.css"), out)
+    shutil.copy(os.path.join(ROOT, "shell", "toolbox.css"), out)
     shutil.copy(os.path.join(ROOT, "docs", "icon.svg"), out)
-    for t in sorted({t for c in comps for t in c.get("texts", [])} | {"AGPL-3.0.txt", "MIT-BentoBook.txt"}):
+    for t in sorted({t for c in comps for t in c.get("texts", [])} | {"AGPL-3.0.txt", "MIT-PDFToolbox.txt"}):
         shutil.copy(os.path.join(LICENSES, "texts", t), os.path.join(out, "licenses", t))
     tag = f"v{info['version']}"
     source = f"{info['repo']}/tree/{tag}"
@@ -307,15 +307,15 @@ def app_pages(out, info, comps, pkgs, attributions):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BentoBook licenses</title>
-<link rel="stylesheet" href="bentobook.css">
+<title>PDF Toolbox licenses</title>
+<link rel="stylesheet" href="toolbox.css">
 </head>
 <body>
 <nav class="top"><a href="about.html">← About</a><a href="/">Tools</a>
 <input type="search" id="filter" placeholder="Filter by name or license" aria-label="Filter"></nav>
 <main>
 <header class="intro"><div><h1>Licenses</h1>
-<p>BentoBook {esc(info['version'])} contains {len(comps) + len(pkgs)} components. Each is listed with its license,
+<p>PDF Toolbox {esc(info['version'])} contains {len(comps) + len(pkgs)} components. Each is listed with its license,
 its copyright holders and where its source code is.</p></div></header>
 {chr(10).join(body)}
 </main>
@@ -342,7 +342,7 @@ def repo_notices(info, comps, pkgs, attributions):
         "<!-- Written by tools/licenses.py from licenses/components.json and BentoPDF's",
         "     build; run it again after changing either. -->",
         "",
-        f"BentoBook {info['version']} is BentoPDF {info['bentopdf_version']} in an Android app. BentoBook's own code (this",
+        f"PDF Toolbox {info['version']} is BentoPDF {info['bentopdf_version']} in an Android app. PDF Toolbox's own code (this",
         "repository) is under the MIT License ([LICENSE](LICENSE)). The app it builds contains BentoPDF",
         "and several engines under the GNU Affero General Public License v3, so the app as a whole is",
         "distributed under the AGPL v3 ([licenses/texts/AGPL-3.0.txt](licenses/texts/AGPL-3.0.txt)).",
@@ -351,18 +351,21 @@ def repo_notices(info, comps, pkgs, attributions):
         "",
         "## BentoPDF, modified",
         "",
-        f"BentoBook contains a modified version of BentoPDF {info['bentopdf_version']} (commit",
+        f"PDF Toolbox contains a modified version of BentoPDF {info['bentopdf_version']} (commit",
         f"[`{info['bentopdf_commit'][:7]}`](https://github.com/alam00000/bentopdf/tree/{info['bentopdf_commit']})), AGPL-3.0,",
         "copyright © the BentoPDF authors. The changes, all in this repository:",
         "",
         "- it is built in Simple Mode, with every engine, its data and the editor's fonts",
-        "  served from the app instead of CDNs (tools/webapp.sh);",
-        "- BentoBook's page script (shell/page_shim.js) runs in every page: opening and saving",
+        "  served from the app instead of CDNs, and with PDF Toolbox's name and logo in its",
+        "  header (tools/webapp.sh);",
+        "- PDF Toolbox's page script (shell/page_shim.js) runs in every page: opening and saving",
         "  files through Android, printing, a compact tool layout and the About link;",
+        "- the app shows its pages in PDF Toolbox's sidebar window (shell/app.html), which hides",
+        "  BentoPDF's top bar and the PDF Multi Tool's header there;",
         "- a prelude (shell/nested-workers.js) is prepended to the LibreOffice converter's worker,",
         "  so its thread workers can start in Android's WebView.",
         "",
-        "PDFs made with BentoBook keep BentoPDF's producer line, as BentoPDF asks.",
+        "PDFs made with PDF Toolbox keep BentoPDF's producer line, as BentoPDF asks.",
         "",
         "## Source code",
         "",
@@ -372,7 +375,7 @@ def repo_notices(info, comps, pkgs, attributions):
         "engines' build scripts, and a second archive with the sources that",
         "[licenses/mirror.txt](licenses/mirror.txt) lists: the GPL-2.0 fonts and the LGPL",
         "libraries compiled into the engines, whose licenses ask for them next to the app",
-        "(`./bb release`).",
+        "(`./ptb release`).",
         "",
     ]
     for group, title in GROUPS:
@@ -414,14 +417,14 @@ def repo_notices(info, comps, pkgs, attributions):
         if len(bits) > 2:
             lines += bits + [""]
     lines += ["", "## Trademarks", "",
-              "BentoBook is an independent project, not made, endorsed or supported by the BentoPDF",
+              "PDF Toolbox is an independent project, not made, endorsed or supported by the BentoPDF",
               "authors, Google or the makers of the components above. BentoPDF is the name of the",
               "BentoPDF authors' project. Googlebook and Android are trademarks of Google LLC.",
               "LibreOffice is a registered trademark of The Document Foundation. Ghostscript and",
               "MuPDF are trademarks of Artifex Software, Inc. Other names are trademarks of their",
-              "owners, used only to say what BentoBook contains.", ""]
+              "owners, used only to say what PDF Toolbox contains.", ""]
     write(os.path.join(ROOT, "THIRD_PARTY_NOTICES.md"), "\n".join(lines))
-    texts = [f"License texts of the {len(pkgs)} npm packages in BentoBook {info['version']}'s scripts",
+    texts = [f"License texts of the {len(pkgs)} npm packages in PDF Toolbox {info['version']}'s scripts",
              "(written by tools/licenses.py)", ""]
     for p in pkgs:
         where = "" if p["text_from"] == "package" else " (text from licenses/npm/: the package ships none)"
@@ -432,12 +435,12 @@ def repo_notices(info, comps, pkgs, attributions):
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     version = re.search(r"^VERSION=(\S+)", read(os.path.join(ROOT, "tools", "webapp.sh")), re.M)[1]
-    cache = os.environ.get("BENTOBOOK_CACHE", os.path.expanduser("~/.cache/bentobook"))
+    cache = os.environ.get("PDFTOOLBOX_CACHE", os.path.expanduser("~/.cache/pdf-toolbox"))
     ap.add_argument("--web", default=os.path.join(cache, f"web-{version}"),
                     help="the web root the app serves (default: BentoPDF's cached build)")
     ap.add_argument("--report", help="Vite's license report (default: WEB/.vite/licenses.json)")
     ap.add_argument("--src", default=os.path.join(cache, f"bentopdf-{version}"), help="BentoPDF's checkout")
-    ap.add_argument("--app", help="write the app's /bentobook/ pages here")
+    ap.add_argument("--app", help="write the app's /toolbox/ pages here")
     args = ap.parse_args()
     info = project()
     comps, overrides, attributions = components(info)

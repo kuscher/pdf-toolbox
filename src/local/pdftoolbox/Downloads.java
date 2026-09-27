@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-package local.bentobook;
+package local.pdftoolbox;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;

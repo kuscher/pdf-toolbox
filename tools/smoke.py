@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Runs BentoBook's engines end to end on a device or an emulator: opens a
+"""Runs PDF Toolbox's engines end to end on a device or an emulator: opens a
 tool, gives it test files, presses its button and waits for the result in
 Download/. The same run on an Arm Googlebook and on an x86_64 emulator shows
 the one APK working on both.
 
-  ./bb smoke [CHECK...]                             on the Googlebook, over adb
+  ./ptb smoke [CHECK...]                             on the Googlebook, over adb
   ADB_SERIAL=emulator-5554 python3 tools/smoke.py   anywhere else (CI)
 
 Checks: merge (pdf-lib and CoherentPDF), compress, pdf-to-docx (PyMuPDF,
@@ -33,8 +33,8 @@ import cdp  # noqa: E402
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEST = os.path.join(ROOT, "test")
 ORIGIN = "https://appassets.androidplatform.net"
-PKG = "local.bentobook"
-A, B, DOCX = "BentoBook Test A.pdf", "BentoBook Test B.pdf", "BentoBook Test Letter.docx"
+PKG = "local.pdftoolbox"
+A, B, DOCX = "PDF Toolbox Test A.pdf", "PDF Toolbox Test B.pdf", "PDF Toolbox Test Letter.docx"
 CHECKS = {
     # name: (page, input files, engines, output name suffix, button to press
     # after processing, script that says the page has read the files, script
@@ -68,20 +68,40 @@ def shell(cmd):
 
 
 class Page:
+    """The tool in the app's frame: the sidebar page (/toolbox/) opens tools in
+    its iframe, and scripts run in the tool's own page."""
+
     def __init__(self):
         cdp.connect()
         pages = [t for t in cdp.http_json("/json/list") if t.get("type") == "page"]
         if not pages:
-            sys.exit("no WebView page to drive: is BentoBook open?")
+            sys.exit("no WebView page to drive: is PDF Toolbox open?")
         self.ws = cdp.Socket(re.search(r"(/devtools/.*)$", cdp.pick(pages, None)["webSocketDebuggerUrl"])[1])
+        if not self.top("location.pathname.startsWith('/toolbox/') && !!window.__pdftoolbox"):
+            self.ws.call("Page.navigate", url=ORIGIN + "/toolbox/")
+            self.wait_top("!!window.__pdftoolbox", "the sidebar page did not load")
 
-    def eval(self, js, timeout=None):
-        timeout = timeout or PATIENCE
-        r = self.ws.call("Runtime.evaluate", timeout=timeout, expression=js, awaitPromise=True,
+    def top(self, js, timeout=None):
+        r = self.ws.call("Runtime.evaluate", timeout=timeout or PATIENCE, expression=js, awaitPromise=True,
                          returnByValue=True, userGesture=True)
         if "exceptionDetails" in r:
             raise RuntimeError(json.dumps(r["exceptionDetails"].get("exception", r["exceptionDetails"]))[:300])
         return r["result"].get("value")
+
+    def wait_top(self, js, what):
+        end = time.time() + PATIENCE
+        while time.time() < end:
+            try:
+                if self.top(js):
+                    return
+            except (RuntimeError, socket.timeout, TimeoutError):
+                pass
+            time.sleep(1)
+        raise TimeoutError(what)
+
+    def eval(self, js, timeout=None):
+        # In the frame's page, with its own globals.
+        return self.top("document.getElementById('view').contentWindow.eval(%s)" % json.dumps(js), timeout)
 
     def wait(self, js, timeout, what):
         end = time.time() + timeout
@@ -96,9 +116,10 @@ class Page:
         raise TimeoutError(what)
 
     def open(self, path):
-        self.ws.call("Page.navigate", url=ORIGIN + path)
+        self.top("window.__pdftoolbox.open(%s); true" % json.dumps(path))
         time.sleep(1)
-        self.wait("document.readyState === 'complete' && !!document.querySelector('#drop-zone input[type=file]')",
+        self.wait("location.pathname.replace(/\\.html$/, '') === %s && document.readyState === 'complete'"
+                  " && !!document.querySelector('#drop-zone input[type=file]')" % json.dumps(path),
                   PATIENCE, f"{path} did not load")
 
     def give(self, names):
@@ -144,7 +165,7 @@ def user():
 
 
 def saved_since(since):
-    """Files BentoBook finished saving to Download/ since a device time."""
+    """Files PDF Toolbox finished saving to Download/ since a device time."""
     out = shell(f"content query --user {user()} --uri {DOWNLOADS} --projection _id:_display_name:_size "
                 f"--where \"owner_package_name='{PKG}' AND is_pending=0 AND date_added>={since}\"")
     return [dict(re.findall(r"(\w+)=([^,]*?)(?=, \w+=|$)", line.split(" ", 2)[-1]))
@@ -206,7 +227,7 @@ def main():
                         shell("dumpsys webviewupdate"))
     app = re.search(r"versionName=(\S+)", shell(f"dumpsys package {PKG}"))
     print(f"device: Android {release}, {abis}; WebView {webview[2] if webview else '?'}; "
-          f"BentoBook {app[1] if app else 'not installed'}")
+          f"PDF Toolbox {app[1] if app else 'not installed'}")
     if not app:
         sys.exit(1)
     adb("logcat", "-c")
@@ -219,13 +240,13 @@ def main():
     ready = None
     for _ in range(120):
         m = re.findall(r"page ready: crossOriginIsolated=(\w+) SharedArrayBuffer=(\w+)",
-                       adb("logcat", "-d", "-s", "BentoBook:I"))
+                       adb("logcat", "-d", "-s", "PDFToolbox:I"))
         if m:
             ready = m[-1]
             break
         time.sleep(1.5)
     if not ready:
-        sys.exit("the app's page never reported ready (adb logcat -s BentoBook)")
+        sys.exit("the app's page never reported ready (adb logcat -s PDFToolbox)")
     isolated = ready == ("true", "true")
     print(f"page ready: crossOriginIsolated={ready[0]} SharedArrayBuffer={ready[1]}")
     failed = 0

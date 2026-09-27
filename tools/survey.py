@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Drop a test PDF into every PDF tool page and report the layout and any
-failed requests.
+"""Drop a test PDF into every PDF tool page, opened in the app's frame as the
+sidebar opens it, and report the layout and any failed requests.
 
-    ./bb debug devtools on
+    ./ptb debug devtools on
     python3 tools/survey.py [/merge-pdf.html ...]
 
 For each page (default: every page of the cached web build whose drop zone
@@ -15,7 +15,7 @@ auto-attaches to workers, since the engines fetch their data from there
 (that is how the PDF Editor's jsDelivr fonts showed up). The app has no
 INTERNET permission, so anything aimed off the app's origin fails.
 
-Uses test/BentoBook Test A.pdf (python3 tools/testfiles.py).
+Uses test/PDF Toolbox Test A.pdf (python3 tools/testfiles.py).
 """
 import base64
 import glob
@@ -31,18 +31,18 @@ import cdp  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ORIGIN = "https://appassets.androidplatform.net"
-PDF = os.path.join(ROOT, "test", "BentoBook Test A.pdf")
+PDF = os.path.join(ROOT, "test", "PDF Toolbox Test A.pdf")
 
 MEASURE = """(async () => {
   const drop = document.getElementById('drop-zone');
   const input = drop.querySelector('input[type=file]');
   const bytes = Uint8Array.from(atob('%s'), (c) => c.charCodeAt(0));
   const dt = new DataTransfer();
-  dt.items.add(new File([bytes], 'BentoBook Test A.pdf', { type: 'application/pdf' }));
+  dt.items.add(new File([bytes], 'PDF Toolbox Test A.pdf', { type: 'application/pdf' }));
   input.files = dt.files;
   input.dispatchEvent(new Event('change', { bubbles: true }));
   await new Promise((r) => setTimeout(r, 6000));
-  const bar = document.getElementById('bentobook-toolbar');
+  const bar = document.getElementById('pdftoolbox-toolbar');
   const btn = document.getElementById('process-btn');
   const r = btn && btn.offsetParent ? btn.getBoundingClientRect() : null;
   const nav = document.querySelector('body > nav');
@@ -52,6 +52,8 @@ MEASURE = """(async () => {
     drop: !!drop.offsetHeight,
     height: document.documentElement.scrollHeight,
     window: innerHeight,
+    width: document.documentElement.scrollWidth,
+    windowWidth: innerWidth,
     button: r ? (r.bottom <= innerHeight ? 'in view' : 'below, at ' + Math.round(r.top)) : '-',
   });
 })()"""
@@ -59,7 +61,7 @@ MEASURE = """(async () => {
 
 def pdf_pages():
     version = re.search(r"^VERSION=(\S+)", open(os.path.join(ROOT, "tools", "webapp.sh")).read(), re.M)[1]
-    web = os.path.expanduser(f"~/.cache/bentobook/web-{version}")
+    web = os.path.expanduser(f"~/.cache/pdf-toolbox/web-{version}")
     pages = []
     for path in sorted(glob.glob(os.path.join(web, "*.html"))):
         html = open(path, encoding="utf-8").read()
@@ -126,18 +128,25 @@ def main():
 
     ws.call("Network.enable")
     ws.call("Target.setAutoAttach", autoAttach=True, waitForDebuggerOnStart=True, flatten=True)
+    ready = ws.call("Runtime.evaluate", expression="!!window.__pdftoolbox", returnByValue=True)
+    if not ready["result"].get("value"):
+        ws.call("Page.navigate", url=ORIGIN + "/toolbox/")
+        time.sleep(4)
     try:
         for page in pages:
             urls.clear()
             failures.clear()
-            pump(send("Page.navigate", url=ORIGIN + page))
+            # In the app's frame, as the sidebar opens it.
+            pump(send("Runtime.evaluate", expression="window.__pdftoolbox.open(%s)" % json.dumps(page)))
             pump(seconds=3.5)
             try:
-                m = pump(send("Runtime.evaluate", expression=MEASURE % data, awaitPromise=True, returnByValue=True))
+                in_frame = "document.getElementById('view').contentWindow.eval(%s)" % json.dumps(MEASURE % data)
+                m = pump(send("Runtime.evaluate", expression=in_frame, awaitPromise=True, returnByValue=True))
                 r = json.loads(m["result"]["result"]["value"])
+                wide = f" WIDER {r['width']}/{r['windowWidth']}" if r["width"] > r["windowWidth"] + 1 else ""
                 line = (f"header={'yes' if r['bar'] else 'no':3} topbar={'shown' if r['nav'] else 'hidden':6} "
                         f"dropzone={'shown' if r['drop'] else 'hidden':6} height={r['height']}/{r['window']} "
-                        f"button={r['button']}")
+                        f"button={r['button']}{wide}")
             except Exception as e:  # a page without the usual drop zone, a timeout
                 line = f"error: {str(e)[:100]}"
             pump(seconds=0.3)

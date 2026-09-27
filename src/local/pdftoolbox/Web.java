@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-package local.bentobook;
+package local.pdftoolbox;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -32,10 +32,11 @@ import java.util.Set;
  * https origin, with the page shim and its message channel.
  */
 final class Web {
-  static final String TAG = "BentoBook";
+  static final String TAG = "PDFToolbox";
   static final String HOST = "appassets.androidplatform.net";
   static final String ORIGIN = "https://" + HOST;
-  static final String HOME = ORIGIN + "/";
+  /** The app's window: the sidebar, with the tools in a frame (shell/app.html). */
+  static final String HOME = ORIGIN + "/toolbox/";
   private static final String ROOT = "web";
 
   interface Listener {
@@ -60,10 +61,10 @@ final class Web {
     }
     Set<String> origin = Set.of(ORIGIN);
     // The channel object comes first so the shim finds it at document start.
-    WebViewCompat.addWebMessageListener(web, "bentobook", origin,
-        (view, message, source, mainFrame, reply) -> {
-          if (mainFrame) listener.onMessage(message, reply);
-        });
+    // Every frame of the app's origin talks on it: the tools run in the
+    // sidebar page's frame, and the reply goes back to the frame that asked.
+    WebViewCompat.addWebMessageListener(web, "pdftoolbox", origin,
+        (view, message, source, mainFrame, reply) -> listener.onMessage(message, reply));
     WebViewCompat.addDocumentStartJavaScript(web, asset(context, "shell/page_shim.js"), origin);
   }
 

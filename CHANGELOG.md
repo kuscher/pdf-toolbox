@@ -1,4 +1,22 @@
-# What's new in BentoBook
+# What's new in PDF Toolbox
+
+PDF Toolbox was called BentoBook up to version 0.5.
+
+## 0.6 (2026-09-27)
+
+- **BentoBook is now PDF Toolbox.** It installs as a new app next to BentoBook:
+  once PDF Toolbox works, uninstall BentoBook.
+- **A sidebar with every tool**, by category, with search (**Ctrl+K**) and your
+  recent tools. A tool opens in the full-height pane next to it, so you can go
+  from one tool to the next without going back to the tool list.
+- **Ctrl+B** folds the sidebar into a row of icons, where each category's icon
+  opens its tools; in a narrow window it folds by itself and opens over the tool.
+- **More room for the tools:** BentoPDF's top bar, its breadcrumbs, the tools'
+  Back to Tools links and the PDF Multi Tool's header make way for the pane,
+  and full-page tools such as the PDF Multi Tool and the Workflow Builder fill
+  it.
+- PDF Toolbox's name and icon replace BentoPDF's logo inside the tools, through
+  BentoPDF's own branding option; About & licenses credits BentoPDF.
 
 ## 0.5 (2026-09-27)
 

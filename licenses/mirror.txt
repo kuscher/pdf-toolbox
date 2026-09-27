@@ -1,9 +1,9 @@
 # Sources to offer from the same place as the app: the licenses of these parts
 # (GPL-2.0 fonts, LGPL libraries compiled into the engines, GPL-3.0 pdf2docx)
 # ask for their source next to the binary, not only a link to it.
-# tools/release.sh downloads them (cached in ~/.cache/bentobook/mirror),
+# tools/release.sh downloads them (cached in ~/.cache/pdf-toolbox/mirror),
 # checks the SHA-256 where one is given, and packs them into
-# BentoBook-<version>-third-party-sources.tar. Everything else's exact source
+# PDFToolbox-<version>-third-party-sources.tar. Everything else's exact source
 # is linked from THIRD_PARTY_NOTICES.md.
 #
 # file name                                   URL [sha256]

@@ -1,40 +1,41 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: MIT
-# Dev helper for BentoBook: build, install and test the app on a Googlebook
+# Dev helper for PDF Toolbox: build, install and test the app on a Googlebook
 # over adb (Wireless debugging, set up by VSCodeBook's `vscodebook android`),
 # and publish releases.
 #
-#   ./bb app                  build, install and launch
-#   ./bb install | start | stop | logs [N]
-#   ./bb debug CMD            dump | reload | open PATH | crash | devtools on|off
-#   ./bb cdp ...              DevTools on the app's WebView (tools/cdp.py)
-#   ./bb shot [FILE] [full]   screenshot the app window (or the full screen)
-#   ./bb share                copy the APK to the Googlebook's Download folder
-#   ./bb incoming FILE...     hand files to the app as if shared to it (they are
+#   ./ptb app                 build, install and launch
+#   ./ptb install | start | stop | logs [N]
+#   ./ptb debug CMD           dump | reload | open PATH | crash | devtools on|off
+#   ./ptb cdp ...             DevTools on the app's WebView (tools/cdp.py)
+#   ./ptb shot [FILE] [full]  screenshot the app window (or the full screen)
+#   ./ptb share               copy the APK to the Googlebook's Download folder
+#   ./ptb incoming FILE...    hand files to the app as if shared to it (they are
 #                             saved to Download/ first; debug builds of the flow)
-#   ./bb live-resize [on|off|status]
+#   ./ptb live-resize [on|off|status]
 #                             resize the window live instead of under a veil
 #                             (Android's per-app ENABLE_FLUID_RESIZING switch)
-#   ./bb smoke [CHECK...]     run the engines end to end on the device (tools/smoke.py)
-#   ./bb release [--publish]  release files for the version in AndroidManifest.xml
+#   ./ptb smoke [CHECK...]    run the engines end to end on the device (tools/smoke.py)
+#   ./ptb release [--publish]
+#                             release files for the version in AndroidManifest.xml
 #                             (tools/release.sh); --publish makes the GitHub release
 #
 # On a Googlebook's Linux terminal, adb's server must not listen on tcp:5037:
 # the Terminal forwards every TCP port in the VM to Android, where any app
 # could use it. So it listens on a Unix socket: VSCodeBook's when that is set
 # up (its `vscodebook android connect` also finds Wireless debugging's port),
-# else BentoBook's own.
+# else PDF Toolbox's own.
 set -euo pipefail
 cd "$(dirname "$(readlink -f "$0")")"
 CONF=${XDG_CONFIG_HOME:-$HOME/.config}/vscodebook
 STATE=$HOME/.local/state/vscodebook
-[[ -d $STATE ]] || STATE=$HOME/.local/state/bentobook
+[[ -d $STATE ]] || STATE=$HOME/.local/state/pdf-toolbox
 mkdir -p "$STATE"
 export ADB_SERVER_SOCKET=${ADB_SERVER_SOCKET:-localfilesystem:$STATE/adb.sock}
 SERIAL=${ADB_SERIAL:-$(cat "$CONF/adb-serial" 2>/dev/null || true)}
 TMP=${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}
-export ADB_SERIAL=$SERIAL CDP_PKG=local.bentobook CDP_SOCK=${CDP_SOCK:-$TMP/bentobook-devtools-$(id -u).sock}
-PKG=local.bentobook
+export ADB_SERIAL=$SERIAL CDP_PKG=local.pdftoolbox CDP_SOCK=${CDP_SOCK:-$TMP/pdftoolbox-devtools-$(id -u).sock}
+PKG=local.pdftoolbox
 A=(adb ${SERIAL:+-s "$SERIAL"})
 
 adb_up() { # connects on demand
@@ -52,12 +53,12 @@ adb_up() { # connects on demand
 install() {
   # Play Protect would stop an adb install to scan it; skip that, then restore.
   "${A[@]}" shell settings put global verifier_verify_adb_installs 0
-  "${A[@]}" install -r build/BentoBook.apk || { "${A[@]}" shell settings put global verifier_verify_adb_installs 1; exit 1; }
+  "${A[@]}" install -r build/PDFToolbox.apk || { "${A[@]}" shell settings put global verifier_verify_adb_installs 1; exit 1; }
   "${A[@]}" shell settings put global verifier_verify_adb_installs 1
 }
 
 share() { # MediaStore Downloads of the current Android user
-  local apk=executables/BentoBook-$(sed -n 's/.*versionName="\([^"]*\)".*/\1/p' AndroidManifest.xml).apk name user tmp id
+  local apk=executables/PDFToolbox-$(sed -n 's/.*versionName="\([^"]*\)".*/\1/p' AndroidManifest.xml).apk name user tmp id
   [[ -f $apk ]] || { echo "no $apk"; exit 1; }
   name=$(basename "$apk"); user=$("${A[@]}" shell am get-current-user | tr -d '\r'); tmp=/data/local/tmp/$name
   "${A[@]}" push "$apk" "$tmp" >/dev/null
@@ -82,10 +83,10 @@ debug() {
     devtools) args+=(--ez on "$([[ ${1:-on} == on ]] && echo true || echo false)") ;;
     open) args+=(--es path "${1:?path, e.g. /merge-pdf}") ;;
   esac
-  "${A[@]}" shell am broadcast -a local.bentobook.DEBUG -p $PKG "${args[@]}" >/dev/null
+  "${A[@]}" shell am broadcast -a local.pdftoolbox.DEBUG -p $PKG "${args[@]}" >/dev/null
   if [[ $cmd == dump ]]; then
     sleep 1
-    "${A[@]}" logcat -d -s BentoBook:I | grep -E "state |page ready|isolation" | tail -4
+    "${A[@]}" logcat -d -s PDFToolbox:I | grep -E "state |page ready|isolation" | tail -4
   fi
 }
 
@@ -94,12 +95,12 @@ case ${1:-} in
   install) adb_up; install ;;
   start) adb_up; start ;;
   stop) adb_up; "${A[@]}" shell am force-stop --user current $PKG ;;
-  logs) adb_up; "${A[@]}" logcat -d -s BentoBook:* chromium:* cr_*:* | tail -"${2:-60}" ;;
+  logs) adb_up; "${A[@]}" logcat -d -s PDFToolbox:* chromium:* cr_*:* | tail -"${2:-60}" ;;
   share) adb_up; share ;;
   incoming)
     adb_up; shift; append=false
     for f in "$@"; do
-      "${A[@]}" shell am broadcast -a local.bentobook.DEBUG -p $PKG --es cmd incoming \
+      "${A[@]}" shell am broadcast -a local.pdftoolbox.DEBUG -p $PKG --es cmd incoming \
         --es name "'$(basename "$f")'" --es b64 "$(base64 -w0 "$f")" --ez append $append >/dev/null
       append=true
     done ;;
@@ -119,14 +120,14 @@ case ${1:-} in
       status)
         "${A[@]}" shell dumpsys platform_compat | grep 'name=ENABLE_FLUID_RESIZING;' |
           grep -q "[{ ]$PKG=true" && echo on || echo off ;;
-      *) echo "usage: ./bb live-resize [on|off|status]" >&2; exit 2 ;;
+      *) echo "usage: ./ptb live-resize [on|off|status]" >&2; exit 2 ;;
     esac ;;
   cdp) shift; adb_up; python3 tools/cdp.py "$@" ;;
   smoke) shift; adb_up; python3 tools/smoke.py "$@" ;;
   release) shift; tools/release.sh "$@" ;;
   shot)
     adb_up
-    out=${2:-$TMP/bentobook-shot.png}
+    out=${2:-$TMP/pdftoolbox-shot.png}
     "${A[@]}" exec-out screencap -p > "$out.full.png"
     if [[ ${3:-} == full ]]; then
       mv "$out.full.png" "$out"

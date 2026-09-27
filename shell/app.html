@@ -1,0 +1,45 @@
+<!doctype html>
+<!-- PDF Toolbox's window (served at /toolbox/): the tools in a sidebar, and
+     the tool itself in the frame on the right, full height. build.sh puts it
+     in the app with tools.js (tools/navdata.py) and Phosphor's icon font. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PDF Toolbox</title>
+<link rel="stylesheet" href="phosphor/style.css">
+<link rel="stylesheet" href="app.css">
+<script src="tools.js"></script>
+</head>
+<body>
+<aside id="nav" aria-label="Tools">
+  <div class="brand">
+    <a class="logo" href="/" target="view" data-name="All tools">
+      <img src="icon.svg" alt=""><span class="label">PDF Toolbox</span>
+    </a>
+    <button id="toggle" class="icon-btn" type="button" aria-label="Collapse the sidebar" data-name="Show or hide the menu (Ctrl+B)">
+      <i class="ph ph-sidebar-simple"></i>
+    </button>
+  </div>
+  <button id="search-btn" class="icon-btn" type="button" aria-label="Search tools" data-name="Search tools (Ctrl+K)">
+    <i class="ph ph-magnifying-glass"></i>
+  </button>
+  <div class="search">
+    <i class="ph ph-magnifying-glass"></i>
+    <input id="q" type="search" placeholder="Search tools" aria-label="Search tools" autocomplete="off" spellcheck="false">
+    <kbd>Ctrl K</kbd>
+  </div>
+  <nav id="list"></nav>
+  <div class="foot">
+    <a class="item" href="/toolbox/about.html" target="view" data-id="about" data-name="About &amp; licenses">
+      <i class="ph ph-info"></i><span class="label">About &amp; licenses</span>
+    </a>
+  </div>
+</aside>
+<div id="flyout" hidden></div>
+<div id="tip" hidden></div>
+<main id="main"><iframe id="view" name="view" title="Tool"></iframe></main>
+<div id="print-root"></div>
+<script src="app.js"></script>
+</body>
+</html>
