@@ -1,5 +1,5 @@
 # BentoBook on x86_64: builds the APK on an x86_64 runner and runs the engine
-# smoke test (tools/smoke.py) in Google's x86_64 Android 17 emulator images.
+# smoke test (tools/smoke.py) in Google's x86_64 Android emulator.
 # Three of the five Googlebooks have Intel chips; BentoBook is developed and
 # tested by hand on an Arm one. The APK has no native code, so it is the same
 # file on both: this checks that it builds on an x86_64 machine and that the
@@ -29,22 +29,20 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Android 17's standard x86_64 image: the check that must pass.
-          - id: android-17
-            name: Android 17 (x86_64)
-            image: system-images;android-37.0;google_apis;x86_64
+          # Android 16's x86_64 image. The Android 17 images (standard and
+          # desktop) don't get through an install with the SDK's emulator 37.x
+          # and software rendering: their SurfaceFlinger aborts whenever it
+          # reads the screen back ("Assertion failed:
+          # !rcEnc->featureInfo()->hasReadColorBufferDma"), restarting Android
+          # every minute or so. BentoBook needs Android 14 or later, and what
+          # this checks, the WebView and the engines on an x86_64 CPU, is the same.
+          - id: android-16
+            name: Android 16 (x86_64)
+            image: system-images;android-36;google_apis;x86_64
             channel: 0
             device: pixel_tablet
             gpu: swiftshader_indirect
             experimental: false
-          # The desktop image, closer to a Googlebook.
-          - id: android-17-desktop
-            name: Android 17 desktop (x86_64, experimental)
-            image: system-images;android-37.0;android-desktop;x86_64
-            channel: 2
-            device: desktop_medium
-            gpu: swiftshader_indirect
-            experimental: true
     continue-on-error: ${{ matrix.experimental }}
     env:
       IMAGE: ${{ matrix.image }}
@@ -109,12 +107,8 @@ jobs:
             printf 'hw.lcd.width=1920\nhw.lcd.height=1200\nhw.lcd.density=160\n' >> "$ANDROID_AVD_HOME/desktop.avd/config.ini"
           fi
           "$EMU" -list-avds
-          # Without GLAsyncSwap the host doesn't offer DMA read-back of colour
-          # buffers, which the API 37 guests' software path asserts against:
-          # SurfaceFlinger aborted ("!...hasReadColorBufferDma") whenever the
-          # screen was sampled, restarting Android every minute.
           "$EMU" -avd desktop -no-window -no-audio -no-boot-anim -no-snapshot -no-metrics \
-            -gpu ${{ matrix.gpu }} -feature -GLAsyncSwap -memory 4096 > emulator.log 2>&1 &
+            -gpu ${{ matrix.gpu }} -memory 4096 > emulator.log 2>&1 &
           timeout 300 adb wait-for-device || { tail -40 emulator.log; exit 1; }
           timeout 900 bash -c 'until [[ $(adb shell getprop sys.boot_completed 2>/dev/null | tr -d "\r") == 1 ]]; do sleep 5; done' ||
             { tail -40 emulator.log; exit 1; }
