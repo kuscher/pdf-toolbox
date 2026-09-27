@@ -26,7 +26,8 @@ import time
 
 SERIAL = os.environ.get("ADB_SERIAL", "")  # ./bb sets it
 PKG = os.environ.get("CDP_PKG", "local.bentobook")
-LOCAL = os.environ.get("CDP_SOCK", f"/tmp/claude-{os.getuid()}/bb-devtools.sock")
+LOCAL = os.environ.get("CDP_SOCK") or os.path.join(
+    os.environ.get("XDG_RUNTIME_DIR") or os.environ.get("TMPDIR") or "/tmp", f"bentobook-devtools-{os.getuid()}.sock")
 
 
 def adb(*args):

@@ -237,8 +237,11 @@ BentoBook's own code is MIT. The app contains AGPL-3.0 parts (BentoPDF,
 PyMuPDF/MuPDF, Ghostscript, CoherentPDF, the PDFium editor engine), so the APK
 as a whole goes out under the AGPL-3.0 with its source: each release carries a
 source archive (tools/release.sh) with this repository, BentoPDF at the pinned
-commit and the engines' build scripts; THIRD_PARTY_NOTICES.md points to the
-exact upstream source of everything else.
+commit and the engines' build scripts, and a third-party sources archive with
+what `licenses/mirror.txt` lists: the GPL-2.0 fonts (Culmus, Liberation 1.07),
+FFmpeg, libvips, GLib, libexif and wasm-vips' patches, libheif, libde265 and
+pdf2docx, whose licenses ask for the source next to the binary.
+THIRD_PARTY_NOTICES.md points to the exact upstream source of everything else.
 
 ## Signing and releases
 

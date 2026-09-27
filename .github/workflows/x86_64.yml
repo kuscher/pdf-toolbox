@@ -41,7 +41,7 @@ jobs:
           path: |
             ~/.cache/android
             ~/.cache/bentobook
-          key: bentobook-${{ runner.arch }}-${{ hashFiles('tools/webapp.sh', 'build.sh') }}
+          key: bentobook-${{ runner.arch }}-${{ hashFiles('tools/webapp.sh') }}
 
       - name: Build the APK
         run: |
@@ -57,7 +57,8 @@ jobs:
           sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
           SDKM=$ANDROID_HOME/cmdline-tools/latest/bin
           yes | "$SDKM/sdkmanager" --licenses > /dev/null || true
-          "$SDKM/sdkmanager" --install emulator platform-tools "$IMAGE" > /dev/null
+          # The Android 17 desktop images are in the SDK's dev channel (2).
+          "$SDKM/sdkmanager" --channel=2 --install emulator platform-tools "$IMAGE" > /dev/null
           "$SDKM/avdmanager" list device -c > devices.txt
           DEVICE=$(grep -x desktop_medium devices.txt || grep -m1 -i desktop devices.txt || true)
           echo "device profile: ${DEVICE:-default}"
@@ -79,8 +80,9 @@ jobs:
       - name: Screenshot and logs
         if: always()
         run: |
-          adb exec-out screencap -p > screen.png || true
-          adb logcat -d > logcat.txt || true
+          # adb waits for a device forever when there is none.
+          timeout 30 adb exec-out screencap -p > screen.png || true
+          timeout 30 adb logcat -d > logcat.txt || true
 
       - uses: actions/upload-artifact@v7
         if: always()

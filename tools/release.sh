@@ -15,7 +15,10 @@
 #                                  this repository at the release commit,
 #                                  BentoPDF at the commit tools/webapp.sh pins,
 #                                  the engines' build scripts and the notices
-#   SHA256SUMS                     checksums of both
+#   BentoBook-<v>-third-party-sources.tar
+#                                  the sources licenses/mirror.txt lists (GPL-2.0
+#                                  fonts, LGPL libraries, pdf2docx)
+#   SHA256SUMS                     checksums of the three
 #   notes.md                       the release notes (from CHANGELOG.md)
 set -euo pipefail
 cd "$(dirname "$(readlink -f "$0")")/.."
@@ -86,7 +89,35 @@ The complete source of BentoBook $V ($REPO/releases/tag/$TAG):
 EOF
 tar czf "$OUT/$NAME.tar.gz" -C "$TMP" "$NAME"
 
-(cd "$OUT" && sha256sum BentoBook.apk "$NAME.tar.gz" > SHA256SUMS)
+# The sources licenses/mirror.txt lists: the GPL-2.0 and LGPL parts' licenses
+# want them offered from the same place as the app.
+TP=BentoBook-$V-third-party-sources
+MIRROR=$CACHE/mirror
+mkdir -p "$TMP/$TP" "$MIRROR"
+{
+  echo "# BentoBook $V: third-party sources"
+  echo
+  echo "Sources of the parts of BentoBook $V whose licenses (GPL-2.0, LGPL, GPL-3.0) ask"
+  echo "for their source next to the app. BentoBook-$V-source.tar.gz has BentoBook and"
+  echo "BentoPDF; THIRD_PARTY_NOTICES.md links the exact source of everything else."
+  echo
+  echo "| File | From |"
+  echo "| --- | --- |"
+} > "$TMP/$TP/README.md"
+while read -r file url sha; do
+  [[ -z $file || $file == \#* ]] && continue
+  if [[ ! -f $MIRROR/$file ]]; then
+    curl -fsSL -o "$MIRROR/$file.tmp" "$url" || die "can't download $url"
+    mv "$MIRROR/$file.tmp" "$MIRROR/$file"
+  fi
+  [[ -z $sha ]] || echo "$sha  $MIRROR/$file" | sha256sum -c --quiet - || die "$file doesn't match its SHA-256"
+  cp "$MIRROR/$file" "$TMP/$TP/"
+  echo "| $file | $url |" >> "$TMP/$TP/README.md"
+done < licenses/mirror.txt
+(cd "$TMP/$TP" && sha256sum -- *.* | grep -v ' README.md$' > SHA256SUMS)
+tar cf "$OUT/$TP.tar" -C "$TMP" "$TP"
+
+(cd "$OUT" && sha256sum BentoBook.apk "$NAME.tar.gz" "$TP.tar" > SHA256SUMS)
 apk_sha=$(cut -d' ' -f1 < <(sha256sum "$OUT/BentoBook.apk"))
 fingerprint=$(sed 's/../&:/g; s/:$//' <<< "${cert^^}")
 size=$(( $(stat -c %s "$OUT/BentoBook.apk") / 1000000 ))
@@ -112,7 +143,8 @@ BentoBook's own code is MIT-licensed. The app contains BentoPDF and several
 engines under the GNU AGPL v3, so the app as a whole is distributed under the
 AGPL v3; every component is listed in [THIRD_PARTY_NOTICES.md]($REPO/blob/$TAG/THIRD_PARTY_NOTICES.md)
 and in the app under About & licenses. The complete source is
-**$NAME.tar.gz** below.
+**$NAME.tar.gz** below; **$TP.tar** has the sources of the GPL and LGPL
+parts inside the engines (fonts, FFmpeg, libvips, libheif and others).
 EOF
 } > "$OUT/notes.md"
 ls -la "$OUT"
@@ -122,5 +154,5 @@ if [[ ${1:-} == --publish ]]; then
   [[ $(git rev-parse "$TAG^{commit}") == "$(git rev-parse HEAD)" ]] || die "$TAG is not HEAD"
   git push origin "$TAG"
   gh release create "$TAG" --title "BentoBook $V" --notes-file "$OUT/notes.md" --latest \
-    "$OUT/BentoBook.apk" "$OUT/$NAME.tar.gz" "$OUT/SHA256SUMS"
+    "$OUT/BentoBook.apk" "$OUT/$NAME.tar.gz" "$OUT/$TP.tar" "$OUT/SHA256SUMS"
 fi

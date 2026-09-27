@@ -1,0 +1,39 @@
+# Sources to offer from the same place as the app: the licenses of these parts
+# (GPL-2.0 fonts, LGPL libraries compiled into the engines, GPL-3.0 pdf2docx)
+# ask for their source next to the binary, not only a link to it.
+# tools/release.sh downloads them (cached in ~/.cache/bentobook/mirror),
+# checks the SHA-256 where one is given, and packs them into
+# BentoBook-<version>-third-party-sources.tar. Everything else's exact source
+# is linked from THIRD_PARTY_NOTICES.md.
+#
+# file name                                   URL [sha256]
+
+# GPL-2.0 fonts: Culmus and Liberation Sans Narrow 1.07 (in LibreOffice's data),
+# Liberation Sans 1.07.4 (pdf.js's standard fonts)
+culmus-0.133.tar.gz                           https://dev-www.libreoffice.org/src/culmus-0.133.tar.gz c0c6873742d07544f6bacf2ad52eb9cb392974d56427938dc1dfbc8399c64d05
+liberation-narrow-fonts-ttf-1.07.6.tar.gz     https://dev-www.libreoffice.org/src/liberation-narrow-fonts-ttf-1.07.6.tar.gz 8879d89b5ff7b506c9fc28efc31a5c0b954bbe9333e66e5283d27d20a8519ea3
+liberation-fonts-1.07.4.tar.gz                https://releases.pagure.org/liberation-fonts/liberation-fonts-1.07.4.tar.gz
+
+# FFmpeg (LGPL-2.1), compiled into OpenCV's module in the PyMuPDF package
+ffmpeg-4.4.1.tar.gz                           https://github.com/FFmpeg/FFmpeg/archive/refs/tags/n4.4.1.tar.gz 82b43cc67296bcd01a59ae6b327cdb50121d3a9e35f41a30de1edd71bb4a6666
+
+# libvips, GLib and libexif (LGPL-2.1) in wasm-vips, with wasm-vips' own build
+# scripts and the patches they apply
+wasm-vips-0.0.17.tar.gz                       https://github.com/kleisauke/wasm-vips/archive/refs/tags/v0.0.17.tar.gz
+vips-8.18.1.tar.xz                            https://github.com/libvips/libvips/releases/download/v8.18.1/vips-8.18.1.tar.xz
+libvips-8.18.1-wasm-vips.patch                https://github.com/libvips/libvips/compare/v8.18.1...kleisauke:wasm-vips-8.18.1.patch
+glib-2.88.0.tar.xz                            https://download.gnome.org/sources/glib/2.88/glib-2.88.0.tar.xz
+glib-2.88.0-wasm-vips.patch                   https://github.com/GNOME/glib/compare/2.88.0...kleisauke:wasm-vips-2.88.0.patch
+libexif-0.6.25.tar.xz                         https://github.com/libexif/libexif/releases/download/v0.6.25/libexif-0.6.25.tar.xz
+emscripten-5.0.3-wasm-vips.patch              https://github.com/emscripten-core/emscripten/compare/5.0.3...kleisauke:wasm-vips-5.0.3.patch
+emscripten-mimalloc-update-3.2.8.patch        https://github.com/emscripten-core/emscripten/compare/be68a76...kleisauke:mimalloc-update-3.2.8.patch
+libjpeg-turbo-a60fb46.patch                   https://github.com/kleisauke/libjpeg-turbo/commit/a60fb467fc7601b008741d42e98268c8a7bcb5b4.patch
+libultrahdr-5ed39d6.patch                     https://github.com/google/libultrahdr/commit/5ed39d67cd31d254e84ebf76b03d4b7bcc12e2f7.patch
+
+# libheif and libde265 (LGPL-3.0) in heic2any, and heic2any itself
+heic2any-0.0.4.tar.gz                         https://github.com/alexcorvi/heic2any/archive/refs/tags/0.0.4.tar.gz
+libheif-1.10.0.tar.gz                         https://github.com/strukturag/libheif/releases/download/v1.10.0/libheif-1.10.0.tar.gz
+libde265-1.0.2.tar.gz                         https://github.com/strukturag/libde265/releases/download/v1.0.2/libde265-1.0.2.tar.gz
+
+# pdf2docx (GPL-3.0), in the PyMuPDF package
+pdf2docx-0.5.8.tar.gz                         https://github.com/ArtifexSoftware/pdf2docx/archive/refs/tags/v0.5.8.tar.gz

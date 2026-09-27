@@ -30,7 +30,10 @@ PDFs made with BentoBook keep BentoPDF's producer line, as BentoPDF asks.
 Whoever has the app is entitled to its complete source: this repository at the release's
 tag (it builds the APK), BentoPDF at the commit above, and the sources listed for each
 component below. Each GitHub release carries a source archive of the first two and the
-engines' build scripts (`./bb release`).
+engines' build scripts, and a second archive with the sources that
+[licenses/mirror.txt](licenses/mirror.txt) lists: the GPL-2.0 fonts and the LGPL
+libraries compiled into the engines, whose licenses ask for them next to the app
+(`./bb release`).
 
 ## BentoPDF and BentoBook
 

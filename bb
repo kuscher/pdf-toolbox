@@ -19,22 +19,34 @@
 #   ./bb release [--publish]  release files for the version in AndroidManifest.xml
 #                             (tools/release.sh); --publish makes the GitHub release
 #
-# adb's server listens on a Unix socket, not tcp:5037: the Terminal forwards
-# every TCP port in the VM to Android, where any app could use it.
+# On a Googlebook's Linux terminal, adb's server must not listen on tcp:5037:
+# the Terminal forwards every TCP port in the VM to Android, where any app
+# could use it. So it listens on a Unix socket: VSCodeBook's when that is set
+# up (its `vscodebook android connect` also finds Wireless debugging's port),
+# else BentoBook's own.
 set -euo pipefail
 cd "$(dirname "$(readlink -f "$0")")"
 CONF=${XDG_CONFIG_HOME:-$HOME/.config}/vscodebook
-SERIAL=${ADB_SERIAL:-$(cat "$CONF/adb-serial" 2>/dev/null || echo none)}
-mkdir -p "$HOME/.local/state/vscodebook"
-export ADB_SERVER_SOCKET=${ADB_SERVER_SOCKET:-localfilesystem:$HOME/.local/state/vscodebook/adb.sock}
-export ADB_SERIAL=$SERIAL CDP_PKG=local.bentobook CDP_SOCK=/tmp/claude-$(id -u)/bb-devtools.sock
+STATE=$HOME/.local/state/vscodebook
+[[ -d $STATE ]] || STATE=$HOME/.local/state/bentobook
+mkdir -p "$STATE"
+export ADB_SERVER_SOCKET=${ADB_SERVER_SOCKET:-localfilesystem:$STATE/adb.sock}
+SERIAL=${ADB_SERIAL:-$(cat "$CONF/adb-serial" 2>/dev/null || true)}
+TMP=${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}
+export ADB_SERIAL=$SERIAL CDP_PKG=local.bentobook CDP_SOCK=${CDP_SOCK:-$TMP/bentobook-devtools-$(id -u).sock}
 PKG=local.bentobook
-A=(adb -s "$SERIAL")
+A=(adb ${SERIAL:+-s "$SERIAL"})
 
-adb_up() { # connects on demand, finding Wireless debugging's port if it changed
+adb_up() { # connects on demand
   "${A[@]}" get-state >/dev/null 2>&1 && return
-  vscodebook android connect >/dev/null || exit 1
-  SERIAL=$(cat "$CONF/adb-serial"); A=(adb -s "$SERIAL"); export ADB_SERIAL=$SERIAL
+  if command -v vscodebook >/dev/null; then
+    vscodebook android connect >/dev/null || exit 1
+    SERIAL=$(cat "$CONF/adb-serial"); A=(adb -s "$SERIAL"); export ADB_SERIAL=$SERIAL
+  else
+    echo "no device: pair Wireless debugging, run adb connect HOST:PORT (ADB_SERVER_SOCKET=$ADB_SERVER_SOCKET)," \
+      "and set ADB_SERIAL if several devices are connected" >&2
+    exit 1
+  fi
 }
 
 install() {
@@ -114,7 +126,7 @@ case ${1:-} in
   release) shift; tools/release.sh "$@" ;;
   shot)
     adb_up
-    out=${2:-/tmp/claude-$(id -u)/bb-shot.png}
+    out=${2:-$TMP/bentobook-shot.png}
     "${A[@]}" exec-out screencap -p > "$out.full.png"
     if [[ ${3:-} == full ]]; then
       mv "$out.full.png" "$out"
