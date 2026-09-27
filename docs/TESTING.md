@@ -39,6 +39,7 @@ tools in the sidebar's frame (1100x788 px in the 1359x876 px window).
 | Open with / Share | `./ptb incoming` shows the file's bar on the tool list; Merge PDF took the file when opened from the sidebar |
 | Print (Markdown to PDF) | the tool's Print puts a copy of its page in the sidebar page and asks the app to print "Markdown to PDF – PDF Toolbox"; with print media, only the formatted document shows; the sidebar comes back afterwards. (The test caught the app message, so no print dialog opened) |
 | Rename | installs as `local.pdftoolbox`, signed with the same key as BentoBook 0.5; BentoBook was uninstalled afterwards |
+| x86_64 (GitHub Actions run 36350541540: Android 16 `android-36;default;x86_64` emulator, WebView 133.0.6943.137) | builds and installs; the sidebar page comes up and drives the tools in its frame; Compress (759 bytes) and PDF to Word (36,848 bytes) match the Googlebook's output, PDF/A gives 11,274 bytes. The emulator's own System UI was slow under software rendering (its "isn't responding" dialog was up at the end); the app kept working |
 
 ## Checked for 0.5 (2026-09-27)
 
