@@ -52,21 +52,31 @@ jobs:
         run: |
           echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
           export PATH=$ANDROID_HOME/platform-tools:$PATH
+          # avdmanager and the emulator must agree on where AVDs live.
+          export ANDROID_AVD_HOME=$HOME/.android/avd
+          echo "ANDROID_AVD_HOME=$ANDROID_AVD_HOME" >> "$GITHUB_ENV"
+          mkdir -p "$ANDROID_AVD_HOME"
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' |
             sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+          ls -l /dev/kvm
           SDKM=$ANDROID_HOME/cmdline-tools/latest/bin
+          EMU=$ANDROID_HOME/emulator/emulator
           yes | "$SDKM/sdkmanager" --licenses > /dev/null || true
           # The Android 17 desktop images are in the SDK's dev channel (2).
           "$SDKM/sdkmanager" --channel=2 --install emulator platform-tools "$IMAGE" > /dev/null
+          "$EMU" -accel-check || true
           "$SDKM/avdmanager" list device -c > devices.txt
           DEVICE=$(grep -x desktop_medium devices.txt || grep -m1 -i desktop devices.txt || true)
           echo "device profile: ${DEVICE:-default}"
-          echo no | "$SDKM/avdmanager" create avd -n desktop -k "$IMAGE" ${DEVICE:+-d "$DEVICE"}
-          "$ANDROID_HOME/emulator/emulator" -avd desktop -no-window -no-audio -no-boot-anim -no-snapshot \
+          echo no | "$SDKM/avdmanager" create avd -n desktop -k "$IMAGE" -p "$ANDROID_AVD_HOME/desktop.avd" \
+            ${DEVICE:+-d "$DEVICE"}
+          "$EMU" -list-avds
+          "$EMU" -avd desktop -no-window -no-audio -no-boot-anim -no-snapshot \
             -gpu swiftshader_indirect -memory 4096 > emulator.log 2>&1 &
-          adb wait-for-device
-          timeout 900 bash -c 'until [[ $(adb shell getprop sys.boot_completed 2>/dev/null | tr -d "\r") == 1 ]]; do sleep 5; done'
+          timeout 300 adb wait-for-device || { tail -40 emulator.log; exit 1; }
+          timeout 900 bash -c 'until [[ $(adb shell getprop sys.boot_completed 2>/dev/null | tr -d "\r") == 1 ]]; do sleep 5; done' ||
+            { tail -40 emulator.log; exit 1; }
           adb shell getprop ro.product.cpu.abilist
 
       - name: Install BentoBook
