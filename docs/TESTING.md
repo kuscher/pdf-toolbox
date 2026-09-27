@@ -4,7 +4,7 @@
 it opens Merge, Compress, PDF to Word, PDF to PDF/A, OCR and Word to PDF, gives
 each the test files, presses its button, waits for the result in Download/
 and deletes it again. The same script runs in the x86_64 workflow, in Google's
-x86_64 Android 17 desktop emulator.
+x86_64 Android 16 emulator (`--slow`).
 
 `python3 tools/testfiles.py` writes test files to test/ (two one-page PDFs
 with real text and a Word document). With DevTools on
@@ -30,6 +30,9 @@ updating BentoPDF.
 | About & licenses | the link sits at the right of BentoPDF's top bar; About shows the licenses, source, engines, required notices; Licenses lists 266 components with their texts; the filter works |
 | Icon | the adaptive icon shows in the taskbar and the window's caption |
 | Window size | Googlebook OS picks the launch size itself: 1359x876 px on the 1920x1200 screen, the same with a `<layout>` default of 80% x 85% or 50% x 50% |
+| x86_64 build (GitHub Actions, ubuntu-24.04 x86_64) | `./build.sh fetch && ./build.sh` builds the APK in under 4 minutes, with Ubuntu's aapt, zipalign and apksigner |
+| x86_64 device (Android 16 `android-36;default;x86_64` emulator, WebView 133.0.6943.137, run 36304733878) | installs and starts; the page shim runs; Compress (PyMuPDF) gives the same 759 bytes as on the Googlebook, PDF to Word (PyMuPDF, pdf2docx, Ghostscript) the same 36,848 bytes, PDF/A (Ghostscript) 11,294 bytes. Merge and OCR time out there: their pages' PDF.js previews never come up in WebView 133. Word to PDF is skipped: WebView 133 has no cross-origin isolation allowlist |
+| x86_64 emulator, Android 17 images (standard and desktop) | not usable in CI: under the emulator's software rendering SurfaceFlinger aborts on every screen read-back (`!rcEnc->featureInfo()->hasReadColorBufferDma`), restarting Android before an install finishes |
 
 ## Checked on an HP Googlebook 14 (Arm; 2026-09-26, WebView 153, versions 0.1 to 0.3)
 

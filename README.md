@@ -207,7 +207,8 @@ the release files: the APK, a source archive and checksums;
 
 **Testing on x86_64.** The [x86_64 workflow](.github/workflows/x86_64.yml)
 builds BentoBook on an x86_64 machine and runs `tools/smoke.py` in Google's
-x86_64 Android 17 desktop emulator.
+x86_64 Android emulator (Android 16: the SDK's Android 17 images crash under the
+emulator's software rendering).
 
 ## License and credits
 

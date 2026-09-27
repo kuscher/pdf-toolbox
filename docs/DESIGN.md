@@ -269,9 +269,15 @@ page; `--preview DIR` renders PNGs under the launcher masks.
 ## Testing on x86_64
 
 `tools/smoke.py` runs the main engines end to end (Merge, Compress, PDF to
-Word, PDF/A, OCR, Word to PDF) on whatever device adb reaches. The x86_64
-workflow (.github/workflows/x86_64.yml) builds the APK on an x86_64 runner and
-runs it in Google's `android-37.0;android-desktop;x86_64` emulator image.
+Word, PDF/A, OCR, Word to PDF) on whatever device adb reaches; `--slow` gives
+an emulator more time. The x86_64 workflow (.github/workflows/x86_64.yml)
+builds the APK on an x86_64 runner and runs it in Google's Android 16 x86_64
+emulator image (`android-36;default`). The Android 17 images, standard and
+desktop, can't get through an install there: with the emulator's software
+rendering their SurfaceFlinger aborts on every screen read-back
+(`!rcEnc->featureInfo()->hasReadColorBufferDma`) and Android restarts. The
+images' WebView (133) predates the cross-origin isolation allowlist, so Word
+to PDF is skipped there; it runs on the Googlebook.
 
 ## Debugging
 

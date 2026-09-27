@@ -4,7 +4,7 @@
 
 - **Every Googlebook, one APK.** BentoBook has no native code: the same APK runs
   on Intel (x86_64) and Arm (Snapdragon, MediaTek) Googlebooks. It is tested on
-  an Arm Googlebook and on Google's x86_64 Android desktop emulator.
+  an Arm Googlebook, and its engines on x86_64 in Google's Android emulator.
 - **New icon** in the Material 3 Expressive style, with a monochrome version
   for themed icons.
 - **About & licenses**, at the top right of every page: BentoBook's version,
