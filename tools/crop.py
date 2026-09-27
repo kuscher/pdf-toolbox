@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """Crops a PNG to a rectangle, with only the standard library.
 
   crop.py IN.png OUT.png X Y W H

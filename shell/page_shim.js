@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 // BentoBook page shim. The app injects it at document start into every
 // page of its own origin. `bentobook` is the app's message channel
 // (WebViewCompat.addWebMessageListener).
@@ -451,7 +452,29 @@
     else start();
   }
 
-  // 7. Page colour for the window caption: the theme-color meta tag, else the
+  // 7. "About & licenses" in BentoPDF's top bar, on every page: Simple Mode
+  //    drops the footer, which is where BentoPDF shows its legal notices, and
+  //    the AGPL wants them in reach of every screen. The page itself is
+  //    BentoBook's (/bentobook/about.html, written by tools/licenses.py).
+  if (isTop && !location.pathname.startsWith('/bentobook/')) {
+    const addAbout = () => {
+      const row = document.querySelector('nav[data-simple-nav] .h-16') || document.querySelector('body > nav .h-16');
+      if (!row || row.querySelector('#bentobook-about')) return;
+      const a = document.createElement('a');
+      a.id = 'bentobook-about';
+      a.href = '/bentobook/about.html';
+      a.textContent = 'About & licenses';
+      a.style.cssText = 'margin-left:auto;padding:6px 10px;border-radius:8px;color:#9ca3af;font-size:14px;'
+        + 'text-decoration:none;white-space:nowrap';
+      a.onmouseenter = () => { a.style.color = '#e5e7eb'; a.style.background = '#374151'; };
+      a.onmouseleave = () => { a.style.color = '#9ca3af'; a.style.background = 'none'; };
+      row.append(a);
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', addAbout, { once: true });
+    else addAbout();
+  }
+
+  // 8. Page colour for the window caption: the theme-color meta tag, else the
   //    background of the page's top edge.
   if (isTop) {
     let last = '';

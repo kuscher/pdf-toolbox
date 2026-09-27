@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
 # Builds BentoPDF's web app for BentoBook and caches it:
 #   ~/.cache/bentobook/web-<version>/   the site root the app serves
 #
@@ -67,6 +68,20 @@ for pack in ${EDITOR_FONTS//,/ }; do
   EDITOR_FONT_FILES+=("$tgz:$file")
 done
 
+# Vite's license report: every npm package the site's bundles contain, with
+# its license text (build.license). BentoPDF's build script runs a plain
+# `vite build`, and Vite reads vite.config.mjs before vite.config.ts, so this
+# file wraps BentoPDF's config and adds the report. tools/licenses.py turns it
+# into the app's notices. (Vite leaves workers out; licenses.py adds theirs.)
+cat > vite.config.mjs <<'EOF'
+// Written by BentoBook's tools/webapp.sh: BentoPDF's config plus Vite's license report.
+import { mergeConfig } from 'vite';
+import base from './vite.config.ts';
+export default async (env) => mergeConfig(
+  await (typeof base === 'function' ? base(env) : base),
+  { build: { license: { fileName: '.vite/licenses.json' } } });
+EOF
+
 rm -rf dist
 SIMPLE_MODE=true COMPRESSION_MODE=o DISABLE_GITHUB_STARS=true SITE_URL=$ORIGIN \
 VITE_WASM_PYMUPDF_URL=$ORIGIN/wasm/pymupdf/ \
@@ -80,6 +95,7 @@ VITE_OCR_FONT_BASE_URL=$ORIGIN/wasm/ocr/fonts \
 VITE_EMBEDPDF_FONTS_URL=$ORIGIN/wasm/embedpdf \
 NODE_OPTIONS=--max-old-space-size=4096 \
   npm run build
+[[ -s dist/.vite/licenses.json ]] || { echo "no license report in dist/.vite: did Vite read vite.config.mjs?" >&2; exit 1; }
 
 rm -rf "$WEB.tmp" && cp -a dist "$WEB.tmp"
 W=$WEB.tmp/wasm

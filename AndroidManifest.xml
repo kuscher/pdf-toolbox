@@ -3,8 +3,8 @@
      files you work on cannot leave the device. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="local.bentobook"
-    android:versionCode="4"
-    android:versionName="0.4">
+    android:versionCode="5"
+    android:versionName="0.5">
 
   <uses-sdk android:minSdkVersion="34" android:targetSdkVersion="37" />
 
@@ -21,9 +21,12 @@
         android:launchMode="singleTask"
         android:resizeableActivity="true"
         android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|navigation|density|uiMode|fontScale|locale|layoutDirection">
+      <!-- Googlebook OS picks the size a window opens at itself (about 70% of
+           the screen on an HP Googlebook 14, whatever this says); other
+           desktop modes take this share of the screen. -->
       <layout
-          android:defaultWidth="1280dp"
-          android:defaultHeight="860dp"
+          android:defaultWidth="80%"
+          android:defaultHeight="85%"
           android:minWidth="600dp"
           android:minHeight="480dp" />
       <intent-filter>

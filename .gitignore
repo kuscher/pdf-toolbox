@@ -4,3 +4,7 @@ executables/
 *.idsig
 test/
 __pycache__/
+# Signing keys never go in the repository (see build.sh).
+*.jks
+*.keystore
+*.pass

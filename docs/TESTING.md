@@ -1,5 +1,11 @@
 # Testing BentoBook
 
+`./bb smoke` (tools/smoke.py) runs the main engines end to end on the device:
+it opens Merge, Compress, PDF to Word, PDF to PDF/A, OCR and Word to PDF, gives
+each the test files, presses its button, waits for the result in Download/
+and deletes it again. The same script runs in the x86_64 workflow, in Google's
+x86_64 Android 17 desktop emulator.
+
 `python3 tools/testfiles.py` writes test files to test/ (two one-page PDFs
 with real text and a Word document). With DevTools on
 (`./bb debug devtools on`), `./bb incoming FILE…` hands files to the app as if
@@ -13,7 +19,19 @@ from the page or its workers. The app has no INTERNET permission, so a URL
 off the app's origin in that list is a missing offline file. Run it after
 updating BentoPDF.
 
-## Checked on the Googlebook (2026-09-26, WebView 153, versions 0.1 to 0.3)
+## Checked for 0.5 (2026-09-27)
+
+| Check | Result |
+| --- | --- |
+| `./bb smoke` on an HP Googlebook 14 (Arm, Android 17, WebView 153.0.8010.39) | all six pass: Merge (merged.pdf), Compress, PDF to Word (.docx), PDF/A, OCR (searchable PDF), Word to PDF (LibreOffice), 7 to 12 s each |
+| Files dropped from the APK (the web root's CoherentPDF copy, cpdf's Node builds, Tesseract's non-single-file builds, unused badges) | Merge (CoherentPDF) and OCR (Tesseract) still pass; the APK is 188 MB (0.4: 196 MB) |
+| No native code | no `lib/` or `.so` in the APK; `aapt2 dump badging` shows no native-code line, so every ABI installs it |
+| Release key | APK Signature Scheme v3, certificate SHA-256 98:70:15:C8:…:DB:C3:D0; 0.4 (old key) had to be uninstalled first, as expected |
+| About & licenses | the link sits at the right of BentoPDF's top bar; About shows the licenses, source, engines, required notices; Licenses lists 266 components with their texts; the filter works |
+| Icon | the adaptive icon shows in the taskbar and the window's caption |
+| Window size | Googlebook OS picks the launch size itself: 1359x876 px on the 1920x1200 screen, the same with a `<layout>` default of 80% x 85% or 50% x 50% |
+
+## Checked on an HP Googlebook 14 (Arm; 2026-09-26, WebView 153, versions 0.1 to 0.3)
 
 | Check | Result |
 | --- | --- |

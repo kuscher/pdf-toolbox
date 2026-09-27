@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """Writes small test files to test/: two one-page PDFs with real text (for
 merge, OCR and so on) and a Word document (for LibreOffice's Word to PDF).
 

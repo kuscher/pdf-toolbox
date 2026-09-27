@@ -1,0 +1,92 @@
+# BentoBook on x86_64: builds the APK on an x86_64 runner and runs the engine
+# smoke test (tools/smoke.py) in Google's x86_64 Android 17 desktop emulator.
+# Three of the five Googlebooks have Intel chips; BentoBook is developed and
+# tested by hand on an Arm one. The APK has no native code, so it is the same
+# file on both: this checks that it builds on an x86_64 machine and that the
+# engines run on an x86_64 device. It signs with a throwaway test key; release
+# APKs are signed on the maintainer's machine (tools/release.sh).
+name: x86_64
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore: ['**.md', 'docs/**', 'licenses/**']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: x86_64-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Build and smoke-test on x86_64
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      IMAGE: system-images;android-37.0;android-desktop;x86_64
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build tools
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -yq --no-install-recommends aapt zipalign apksigner
+
+      - name: Cache the toolchain and BentoPDF's build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/android
+            ~/.cache/bentobook
+          key: bentobook-${{ runner.arch }}-${{ hashFiles('tools/webapp.sh', 'build.sh') }}
+
+      - name: Build the APK
+        run: |
+          ./build.sh fetch
+          ./build.sh
+
+      - name: Start the emulator (Android 17 desktop, x86_64)
+        run: |
+          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+          export PATH=$ANDROID_HOME/platform-tools:$PATH
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' |
+            sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+          SDKM=$ANDROID_HOME/cmdline-tools/latest/bin
+          yes | "$SDKM/sdkmanager" --licenses > /dev/null || true
+          "$SDKM/sdkmanager" --install emulator platform-tools "$IMAGE" > /dev/null
+          "$SDKM/avdmanager" list device -c > devices.txt
+          DEVICE=$(grep -x desktop_medium devices.txt || grep -m1 -i desktop devices.txt || true)
+          echo "device profile: ${DEVICE:-default}"
+          echo no | "$SDKM/avdmanager" create avd -n desktop -k "$IMAGE" ${DEVICE:+-d "$DEVICE"}
+          "$ANDROID_HOME/emulator/emulator" -avd desktop -no-window -no-audio -no-boot-anim -no-snapshot \
+            -gpu swiftshader_indirect -memory 4096 > emulator.log 2>&1 &
+          adb wait-for-device
+          timeout 900 bash -c 'until [[ $(adb shell getprop sys.boot_completed 2>/dev/null | tr -d "\r") == 1 ]]; do sleep 5; done'
+          adb shell getprop ro.product.cpu.abilist
+
+      - name: Install BentoBook
+        run: |
+          adb install -r build/BentoBook.apk
+          adb shell dumpsys webviewupdate | grep -m1 "Current WebView package"
+
+      - name: Smoke test
+        run: python3 tools/smoke.py --timeout 600
+
+      - name: Screenshot and logs
+        if: always()
+        run: |
+          adb exec-out screencap -p > screen.png || true
+          adb logcat -d > logcat.txt || true
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: x86_64-emulator
+          path: |
+            screen.png
+            logcat.txt
+            emulator.log

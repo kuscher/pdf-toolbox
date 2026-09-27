@@ -12,9 +12,16 @@ BentoBook.apk
 ├── assets/web/        BentoPDF v2.8.8, simple mode, air-gapped build
 │   ├── wasm/          PyMuPDF (Pyodide), Ghostscript, CoherentPDF, Tesseract + English data
 │   └── libreoffice-wasm/   LibreOffice 24.8 (Emscripten, threads)
+│   └── bentobook/     About & licenses (tools/licenses.py)
 ├── assets/shell/page_shim.js   injected into every page at document start
 └── classes.dex        MainActivity, Web (asset server), Downloads, Store
 ```
+
+There is no native code: the engines are WebAssembly and the app is Java, so
+one APK installs and runs on every Googlebook, x86_64 (Intel) or arm64
+(Snapdragon, MediaTek). build.sh fails if a `lib/` directory or a `.so` ever
+gets into the APK. The Arm side is tested on an HP Googlebook 14, the x86_64
+side in CI (below).
 
 ## Building it
 
@@ -90,7 +97,7 @@ androidx.webkit 1.18.0-alpha01 (2026-09) added
 `Profile#setCrossOriginIsolatedAllowlist`. MainActivity puts the app's own
 origin on it (`Web.isolate()`, feature `CROSS_ORIGIN_ISOLATED_ALLOWLIST`),
 and every response carries `Document-Isolation-Policy:
-isolate-and-credentialless`. **Verified on the Googlebook (WebView
+isolate-and-credentialless`. **Verified on an HP Googlebook 14 (WebView
 153.0.8010.36):** `crossOriginIsolated` is true in the page, in workers and in
 nested workers, and SharedArrayBuffer and shared `WebAssembly.Memory` can
 be posted to them. The page shim logs it on every load ("page ready:
@@ -171,13 +178,18 @@ Injected at document start into every page of the app's origin, with a
 
 ## The window
 
-- A resizable desktop window, 1280x860 dp by default. The caption bar is
+- A resizable desktop window, at least 600x480 dp. Googlebook OS picks the
+  size it opens at: on the HP Googlebook 14 it is about 71% x 76% of the
+  screen, and a `<layout>` default size of 1280x860 dp, 80% x 85% or 50% x 50%
+  made no difference. The manifest asks for 80% x 85% for desktop modes that
+  do use it, rather than a fixed size that can't fit a small screen. The
+  caption bar is
   transparent over the root view's colour, which follows the page's top
   edge. The WebView is padded below the caption (caption, system bar and
   cutout insets), so a tool's controls never sit under the window buttons.
 - **Live resizing.** In desktop windowing, SystemUI resizes a window under
   a veil (the app's icon on a plain colour) and lets the app lay out once,
-  at the end of the drag. Checked in this Googlebook's SystemUI
+  at the end of the drag. Checked in the HP Googlebook 14's SystemUI
   (`DesktopModeWindowDecorViewModel.createWindowDecoration`): a window
   gets the veiled positioner only when veiled resizing is on and compat
   change `ENABLE_FLUID_RESIZING` (460405642) is off for its package;
@@ -199,6 +211,64 @@ Injected at document start into every page of the app's origin, with a
 - The file picker is `FileChooserParams.createIntent()`: at targetSdk 37 it
   opens DocumentsUI with the input's MIME filter, and `showSaveFilePicker`
   (the editor's "edit image externally") becomes CREATE_DOCUMENT.
+
+## Licenses (tools/licenses.py)
+
+Every part of the app is declared with its license, copyright holders and
+source, and the texts ship in the APK:
+
+- `licenses/components.json` lists everything that isn't an npm package in
+  BentoPDF's scripts: BentoPDF itself, each engine (with the libraries compiled
+  into it), fonts, data and the Android libraries. The texts it names are in
+  `licenses/texts/`.
+- The npm packages come from Vite's own report (`build.license`, which
+  tools/webapp.sh turns on by putting a `vite.config.mjs` next to BentoPDF's
+  config) plus the packages only BentoPDF's workers import, which that report
+  leaves out. Packages that ship no license file get one from `licenses/npm/`.
+- build.sh runs it: it writes the app's `/bentobook/about.html` and
+  `licenses.html` with every text, and THIRD_PARTY_NOTICES.md and
+  licenses/javascript-packages.txt in the repository. It stops the build when a
+  file in the site that is an engine, data or a font belongs to no component,
+  so an engine a BentoPDF update adds can't ship unlisted.
+- The page shim puts **About & licenses** in BentoPDF's top bar on every page:
+  Simple Mode hides BentoPDF's footer, and the AGPL wants the notices in reach.
+
+BentoBook's own code is MIT. The app contains AGPL-3.0 parts (BentoPDF,
+PyMuPDF/MuPDF, Ghostscript, CoherentPDF, the PDFium editor engine), so the APK
+as a whole goes out under the AGPL-3.0 with its source: each release carries a
+source archive (tools/release.sh) with this repository, BentoPDF at the pinned
+commit and the engines' build scripts; THIRD_PARTY_NOTICES.md points to the
+exact upstream source of everything else.
+
+## Signing and releases
+
+The release key is in `~/.config/bentobook` (`keystore.jks`, `keystore.pass`),
+never in the repository; without it build.sh signs with a test key. 0.1 to 0.4
+were signed with a key that was in the repository; it was taken out of the
+history and retired, so 0.5 can't update those installs.
+
+`tools/release.sh` (`./bb release [--publish]`) checks that build/BentoBook.apk
+has the manifest's version and the release key's certificate, then writes
+`BentoBook.apk` (the same name in every release, so
+`releases/latest/download/BentoBook.apk` is a stable link), the source archive,
+`SHA256SUMS` and the release notes (from CHANGELOG.md) to
+`executables/release-<version>/`, and with `--publish` tags the commit and
+makes the GitHub release.
+
+## The icon (tools/icon.py)
+
+A bento box of PDF tools in Material 3 Expressive style: a page, a "cookie"
+shape and a pill in three compartments. `tools/icon.py` draws it once and
+writes the adaptive icon's background, foreground and monochrome (themed icon)
+layers as vector drawables, and `docs/icon.svg` for the README and the About
+page; `--preview DIR` renders PNGs under the launcher masks.
+
+## Testing on x86_64
+
+`tools/smoke.py` runs the main engines end to end (Merge, Compress, PDF to
+Word, PDF/A, OCR, Word to PDF) on whatever device adb reaches. The x86_64
+workflow (.github/workflows/x86_64.yml) builds the APK on an x86_64 runner and
+runs it in Google's `android-37.0;android-desktop;x86_64` emulator image.
 
 ## Debugging
 

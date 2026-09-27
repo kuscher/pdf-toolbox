@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """A tiny Chrome DevTools Protocol client for the app's WebViews.
 
 The WebView's DevTools socket is forwarded to a unix socket in the VM (not a
@@ -23,13 +24,13 @@ import subprocess
 import sys
 import time
 
-SERIAL = os.environ.get("ADB_SERIAL", "192.0.0.4:42301")  # ./dbk sets it
+SERIAL = os.environ.get("ADB_SERIAL", "")  # ./bb sets it
 PKG = os.environ.get("CDP_PKG", "local.bentobook")
 LOCAL = os.environ.get("CDP_SOCK", f"/tmp/claude-{os.getuid()}/bb-devtools.sock")
 
 
 def adb(*args):
-    return subprocess.check_output(["adb", "-s", SERIAL, *args]).decode()
+    return subprocess.check_output(["adb", *(["-s", SERIAL] if SERIAL else []), *args]).decode()
 
 
 def connect():
@@ -38,7 +39,7 @@ def connect():
         sys.exit(f"{PKG} is not running")
     name = f"webview_devtools_remote_{pid[0]}"
     if name not in adb("shell", "cat", "/proc/net/unix"):
-        sys.exit(f"no {name}: turn inspection on with `./dbk debug devtools on`")
+        sys.exit(f"no {name}: turn inspection on with `./bb debug devtools on`")
     os.makedirs(os.path.dirname(LOCAL), exist_ok=True)
     unforward()  # a run killed midway leaves adb listening on a deleted socket
     if os.path.exists(LOCAL):
@@ -47,7 +48,7 @@ def connect():
 
 
 def unforward():
-    subprocess.call(["adb", "-s", SERIAL, "forward", "--remove", f"localfilesystem:{LOCAL}"],
+    subprocess.call(["adb", *(["-s", SERIAL] if SERIAL else []), "forward", "--remove", f"localfilesystem:{LOCAL}"],
                     stderr=subprocess.DEVNULL)
 
 

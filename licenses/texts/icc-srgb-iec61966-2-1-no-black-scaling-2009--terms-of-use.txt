@@ -1,0 +1,15 @@
+sRGB_IEC61966-2-1_no_black_scaling.icc
+Copyright International Color Consortium, 2009   (the profile's 'cprt' tag)
+
+Terms of use, as published by the International Color Consortium on
+http://www.color.org/srgbprofiles.xalter (archived 2013-01-02:
+http://web.archive.org/web/20130102072416/http://www.color.org:80/srgbprofiles.xalter):
+
+To anyone who acknowledges that the files "sRGB_IEC61966-2-1_no_black_scaling.icc" and
+"sRGB_IEC61966-2-1_black scaled.icc" are provided "AS IS" WITH NO EXPRESS OR IMPLIED WARRANTY, permission to use, copy and distribute these file for any purpose is hereby granted without fee, provided that the files are not changed including the ICC copyright notice tag, and that the name of
+ICC shall not be used in advertising or publicity pertaining to distribution of the software without specific, written prior permission.  ICC makes no representations about the suitability of this software for any purpose.
+
+ICC's current general terms for profiles where ICC is the copyright owner
+(https://registry.color.org/profile-library/, "Licensing", retrieved 2026-09-27):
+
+"This profile is made available by the International Color Consortium, and may be copied, distributed, embedded, made, used, and sold without restriction. Altered versions of this profile shall have the original identification and copyright information removed and shall not be misrepresented as the original profile."

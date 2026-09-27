@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# Dev helper for BentoBook: build, install and test the app on the Googlebook
-# over adb (Wireless debugging, set up by VSCodeBook's `vscodebook android`).
+# SPDX-License-Identifier: MIT
+# Dev helper for BentoBook: build, install and test the app on a Googlebook
+# over adb (Wireless debugging, set up by VSCodeBook's `vscodebook android`),
+# and publish releases.
 #
 #   ./bb app                  build, install and launch
 #   ./bb install | start | stop | logs [N]
@@ -13,6 +15,9 @@
 #   ./bb live-resize [on|off|status]
 #                             resize the window live instead of under a veil
 #                             (Android's per-app ENABLE_FLUID_RESIZING switch)
+#   ./bb smoke [CHECK...]     run the engines end to end on the device (tools/smoke.py)
+#   ./bb release [--publish]  release files for the version in AndroidManifest.xml
+#                             (tools/release.sh); --publish makes the GitHub release
 #
 # adb's server listens on a Unix socket, not tcp:5037: the Terminal forwards
 # every TCP port in the VM to Android, where any app could use it.
@@ -105,6 +110,8 @@ case ${1:-} in
       *) echo "usage: ./bb live-resize [on|off|status]" >&2; exit 2 ;;
     esac ;;
   cdp) shift; adb_up; python3 tools/cdp.py "$@" ;;
+  smoke) shift; adb_up; python3 tools/smoke.py "$@" ;;
+  release) shift; tools/release.sh "$@" ;;
   shot)
     adb_up
     out=${2:-/tmp/claude-$(id -u)/bb-shot.png}
@@ -121,5 +128,5 @@ case ${1:-} in
       rm -f "$out.full.png"
     fi
     echo "$out" ;;
-  *) sed -n '2,15p' "$0"; exit 1 ;;
+  *) sed -n '3,20p' "$0"; exit 1 ;;
 esac

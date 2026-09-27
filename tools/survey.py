@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """Drop a test PDF into every PDF tool page and report the layout and any
 failed requests.
 

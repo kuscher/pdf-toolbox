@@ -1,0 +1,105 @@
+<!doctype html>
+<!-- BentoBook's About page, served at /bentobook/about.html. tools/licenses.py
+     fills in the names in double braces at build time. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About BentoBook</title>
+<link rel="stylesheet" href="bentobook.css">
+</head>
+<body>
+<nav class="top"><a href="/">← Tools</a></nav>
+<main>
+  <header class="intro">
+    <img src="icon.svg" width="64" height="64" alt="">
+    <div>
+      <h1>BentoBook {{version}}</h1>
+      <p>BentoPDF {{bentopdf_version}}, the private PDF toolkit, as an offline app for Googlebooks.</p>
+    </div>
+  </header>
+
+  <section>
+    <h2>Free software, no warranty</h2>
+    <p>BentoBook © {{year}} the BentoBook authors. BentoPDF © the BentoPDF authors.</p>
+    <p>This app is free software. BentoBook's own code is under the MIT License. The
+      app also contains BentoPDF and several engines licensed under the GNU Affero
+      General Public License, version 3, so the app as a whole is distributed under
+      that license: you may run, study, share and change it under its terms. It
+      comes <strong>without any warranty</strong>; without even the implied warranty
+      of merchantability or fitness for a particular purpose.</p>
+    <p class="links">
+      <a href="licenses/AGPL-3.0.txt">GNU AGPL v3</a>
+      <a href="licenses/MIT-BentoBook.txt">MIT License</a>
+    </p>
+  </section>
+
+  <section>
+    <h2>Source code</h2>
+    <p>Everyone who has this app may have its complete source code, and may
+      change it and share it under the same licenses. The source of this version,
+      with the scripts that build this app, the exact BentoPDF commit and the
+      engine packages it uses, is at:</p>
+    <p class="links"><a href="{{source_url}}">{{source_label}}</a></p>
+    <p>Each download of BentoBook comes with a source archive next to the app,
+      and <a href="licenses.html">Licenses</a> lists where every component's own
+      source is.</p>
+  </section>
+
+  <section>
+    <h2>Built on BentoPDF</h2>
+    <p>BentoPDF is copyright © the BentoPDF authors and licensed under the GNU
+      AGPL v3. BentoBook contains a modified version of BentoPDF {{bentopdf_version}}
+      (commit {{bentopdf_commit_short}}): built in Simple Mode with every engine
+      served from the app instead of the internet, and with BentoBook's page script,
+      which adds opening and saving files, printing, a compact tool layout and the
+      link to this page. The PDFs you make keep BentoPDF's producer line.</p>
+    <p class="links">
+      <a href="{{bentopdf_url}}">BentoPDF on GitHub</a>
+      <a href="/licensing">BentoPDF's licensing page</a>
+    </p>
+  </section>
+
+  <section>
+    <h2>Engines and other parts</h2>
+    <p>The tools run on these open-source engines, compiled to WebAssembly and
+      running on this device:</p>
+    <table>
+      <thead><tr><th>Component</th><th>Used for</th><th>License</th></tr></thead>
+      <tbody>
+{{engine_rows}}
+      </tbody>
+    </table>
+    <p class="links"><a href="licenses.html">All {{component_count}} components and their licenses</a></p>
+    <p class="muted">Some of their licenses ask for these notices:</p>
+    <ul class="muted">
+{{attributions}}
+    </ul>
+  </section>
+
+  <section>
+    <h2>Privacy</h2>
+    <p>BentoBook has no internet permission. Your files are processed on this
+      device and never leave it. Links to websites open in your browser.</p>
+  </section>
+
+  <section>
+    <h2>Updates</h2>
+    <p>BentoBook can't check for updates on its own: it has no internet
+      permission. New versions are at:</p>
+    <p class="links"><a href="{{releases_url}}">{{releases_label}}</a></p>
+  </section>
+
+  <section>
+    <h2>Trademarks</h2>
+    <p>BentoBook is an independent project. It is not made, endorsed or supported
+      by the BentoPDF authors, Google or the makers of the components it
+      includes. BentoPDF is the name of the BentoPDF authors' project. Googlebook
+      and Android are trademarks of Google LLC. LibreOffice is a registered
+      trademark of The Document Foundation. Ghostscript and MuPDF are trademarks
+      of Artifex Software, Inc. Other names are trademarks of their owners and
+      are used here only to say what BentoBook contains.</p>
+  </section>
+</main>
+</body>
+</html>
