@@ -54,6 +54,15 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Make room
+        # The emulator needs a big data partition; the runner's preinstalled
+        # toolchains BentoBook doesn't use fill most of the disk.
+        run: |
+          df -h / | tail -1
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL \
+            /usr/local/share/boost /usr/local/lib/android/sdk/ndk /usr/share/swift
+          df -h / | tail -1
+
       - name: Build tools
         run: |
           sudo apt-get update -q
@@ -96,7 +105,7 @@ jobs:
           echo no | "$SDKM/avdmanager" create avd -n desktop -k "$IMAGE" -p "$ANDROID_AVD_HOME/desktop.avd" \
             ${DEVICE:+-d "$DEVICE"}
           # Room for a 188 MB app (the default data partition is too small for it).
-          echo 'disk.dataPartition.size=8G' >> "$ANDROID_AVD_HOME/desktop.avd/config.ini"
+          echo 'disk.dataPartition.size=6G' >> "$ANDROID_AVD_HOME/desktop.avd/config.ini"
           # A Googlebook-sized screen: the desktop profile's 3840x2160 is heavy for
           # software rendering.
           if [[ '${{ matrix.device }}' == desktop_* ]]; then
