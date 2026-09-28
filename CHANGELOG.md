@@ -2,6 +2,12 @@
 
 PDF Toolbox was called BentoBook up to version 0.5.
 
+## 0.6.1 (2026-09-28)
+
+- **About & licenses** now says what PDF Toolbox is: a personal passion
+  project, not affiliated with my employer, made on a Googlebook in its Linux
+  Terminal.
+
 ## 0.6 (2026-09-27)
 
 - **BentoBook is now PDF Toolbox.** It installs as a new app next to BentoBook:
