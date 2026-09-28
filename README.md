@@ -22,8 +22,10 @@ permission to use the internet. **One APK works on every Googlebook**, with an I
 
 PDF Toolbox was called BentoBook until version 0.5.
 
-PDF Toolbox is an independent project, not made or endorsed by the BentoPDF authors
-or by Google.
+**A passion project.** PDF Toolbox is my personal project, made on my own: it is
+not affiliated with, sponsored by or endorsed by my employer, and nothing here speaks
+for them. It isn't made or endorsed by the BentoPDF authors or by Google either.
+It was [made on a Googlebook](#made-on-a-googlebook).
 
 ## Contents
 
@@ -35,6 +37,7 @@ or by Google.
 - [Limits](#limits)
 - [Questions](#questions)
 - [Building it yourself](#building-it-yourself)
+- [Made on a Googlebook](#made-on-a-googlebook)
 - [License and credits](#license-and-credits)
 
 ## What it does
@@ -221,6 +224,28 @@ the release files: the APK, a source archive and checksums;
 builds PDF Toolbox on an x86_64 machine and runs `tools/smoke.py` in Google's
 x86_64 Android emulator (Android 16: the SDK's Android 17 images crash under the
 emulator's software rendering).
+
+## Made on a Googlebook
+
+PDF Toolbox is developed on a Googlebook, an HP Googlebook 14, in the Googlebook's
+built-in Linux Terminal. Some of the fun parts:
+
+- **The Terminal's Debian builds everything:** BentoPDF's web app with Node.js and
+  Vite, and the APK with Debian's aapt2, javac, zipalign and apksigner and Google's
+  D8. No Android Studio, no Gradle.
+- **The Googlebook tests itself:** adb over Wireless debugging reaches from the
+  Terminal to the Android side of the same laptop, and a small Chrome DevTools
+  Protocol client drives the app's WebView: the smoke test runs real conversions,
+  and the layout survey opens all 79 PDF tools and measures them.
+- **Big engines in a WebView:** LibreOffice, Ghostscript, Tesseract and Python with
+  PyMuPDF run as WebAssembly, served from inside the APK, with SharedArrayBuffer
+  switched on by androidx.webkit's cross-origin isolation allowlist.
+- **x86_64 without an x86 laptop:** GitHub Actions builds the APK on x86_64 and
+  runs it in Android's x86_64 emulator.
+- **The icon is drawn in code** (`tools/icon.py`): Material 3 Expressive vector
+  layers, themed icon included.
+
+<sub>With a little help from Claude.</sub>
 
 ## License and credits
 
