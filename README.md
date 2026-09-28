@@ -1,4 +1,4 @@
-<p align="center"><img src="docs/icon.svg" width="112" height="112" alt=""></p>
+<p align="center"><img src="docs/icon.svg" width="112" height="112" alt="PDF Toolbox icon"></p>
 
 <h1 align="center">PDF Toolbox</h1>
 
@@ -7,10 +7,24 @@ Merge, split, edit, sign, fill forms, convert Word, Excel and PowerPoint, OCR an
 offline, in a desktop window, and your files never leave your device.</p>
 
 <p align="center">
-  <a href="https://github.com/kuscher/pdf-toolbox/releases/latest/download/PDFToolbox.apk"><b>⬇ Download PDF Toolbox</b></a>
+  <a href="https://github.com/kuscher/pdf-toolbox/releases/latest/download/PDFToolbox.apk"><b>⬇ Download PDFToolbox.apk</b></a>
   &nbsp;·&nbsp; <a href="#install">How to install</a>
   &nbsp;·&nbsp; <a href="https://github.com/kuscher/pdf-toolbox/releases">All versions</a>
   &nbsp;·&nbsp; <a href="CHANGELOG.md">What's new</a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Googlebooks-Intel_%26_Arm-4F6BED" alt="For Googlebooks, Intel and Arm">
+  <img src="https://img.shields.io/badge/internet_permission-none-2E7D32" alt="No internet permission">
+  <img src="https://img.shields.io/badge/license-MIT_%2F_AGPL--3.0-555555" alt="License: MIT; the app as a whole AGPL-3.0">
+  <img src="https://img.shields.io/badge/developed_entirely_on-a_Googlebook-E0407E" alt="Developed entirely on a Googlebook">
+</p>
+
+<p align="center"><sub>A personal passion project by <a href="https://github.com/kuscher">Alexander Kuscher</a>, developed entirely on a Googlebook.
+Not affiliated with or endorsed by any employer (<a href="#about-this-project">more</a>).</sub></p>
+
+<p align="center">
+  <img src="docs/images/hero.png" width="880" alt="PDF Toolbox on a Googlebook: the sidebar with every tool, and the PDF Multi Tool with the eight pages of a hiking guide">
 </p>
 
 PDF Toolbox is [BentoPDF](https://github.com/alam00000/bentopdf), the open-source,
@@ -22,11 +36,6 @@ permission to use the internet. **One APK works on every Googlebook**, with an I
 
 PDF Toolbox was called BentoBook until version 0.5.
 
-**A passion project.** PDF Toolbox is my personal project, made on my own: it is
-not affiliated with, sponsored by or endorsed by my employer, and nothing here speaks
-for them. It isn't made or endorsed by the BentoPDF authors or by Google either.
-It was [made on a Googlebook](#made-on-a-googlebook).
-
 ## Contents
 
 - [What it does](#what-it-does)
@@ -37,7 +46,7 @@ It was [made on a Googlebook](#made-on-a-googlebook).
 - [Limits](#limits)
 - [Questions](#questions)
 - [Building it yourself](#building-it-yourself)
-- [Made on a Googlebook](#made-on-a-googlebook)
+- [About this project](#about-this-project)
 - [License and credits](#license-and-credits)
 
 ## What it does
@@ -53,6 +62,11 @@ It was [made on a Googlebook](#made-on-a-googlebook).
 - **Clean up:** OCR (make scanned PDFs searchable), compress, remove blank pages,
   deskew, encrypt and decrypt, change permissions, remove metadata.
 - **Workflow Builder:** chain tools into your own pipeline.
+
+<p align="center">
+  <img src="docs/images/edit-text.png" width="880" alt="Edit PDF Text with the guide's cover: the title and subtitle are editable text boxes, with font, colour and spacing options on the right">
+  <br><sub>Edit PDF Text: click a paragraph and type. Font, colour, alignment and spacing are on the right.</sub>
+</p>
 
 ## Requirements
 
@@ -117,22 +131,33 @@ Like any app: press and hold (or right-click) PDF Toolbox in your apps and choos
   one page.
 - **Search** with **Ctrl+K**: type part of a tool's name or what it does
   ("split", "word", "sign"), use the arrow keys and press **Enter**.
+
+<p align="center">
+  <img src="docs/images/search.png" width="880" alt="The sidebar's search showing three tools for sign, next to Sign PDF with the guide's checklist and permit page">
+  <br><sub>Search finds tools as you type; Sign PDF shows the page to sign with its own toolbar.</sub>
+</p>
+
 - **More room:** **Ctrl+B** or the button at the top of the sidebar folds it into a
   slim row of icons; each category's icon opens its tools. In a narrow window the
   sidebar folds by itself and opens over the tool when you need it.
+
+<p align="center">
+  <img src="docs/images/rail.png" width="880" alt="The sidebar folded into a row of icons, with the Secure PDF category open as a menu over the tool list">
+  <br><sub>Folded: your recent tools and the categories as icons. Each category opens as a menu.</sub>
+</p>
 - **Pick a tool, then a file:** click the drop area and choose files, or drag
   them in from the Files app.
 - **From the Files app:** open a PDF with PDF Toolbox, or share any supported file
   (PDF, images, Word, Excel, PowerPoint, OpenDocument, EPUB, email) to it. A bar
   says the file is waiting; open a tool and the file goes straight in.
 - **Once your file is in,** the tool's page folds its title and drop area into a
-  slim header: **← Tools**, the tool, your file, **Change file** (or **Add
-  files**) and **Details**, which shows the folded part again. Editors (Sign, PDF
+  slim header: the tool, your file, **Change file** (or **Add files**) and
+  **Details**, which shows the folded part again. Editors (Sign, PDF
   Editor, Crop, Form Filler, Stamps and others) and the PDF Multi Tool fill the
   pane, with their toolbar and buttons in view.
 - **Results** are saved to your **Download** folder. A bar at the bottom shows the
   name, with **Open** (in your PDF viewer) and **Show** (in Files).
-- **Back** (the back key or gesture) goes back to the previous page.
+- **Back** (the back key or gesture) goes back to the previous tool.
 - **About & licenses**, at the bottom of the sidebar, shows the version, the
   licenses and where the source code is.
 
@@ -225,9 +250,13 @@ builds PDF Toolbox on an x86_64 machine and runs `tools/smoke.py` in Google's
 x86_64 Android emulator (Android 16: the SDK's Android 17 images crash under the
 emulator's software rendering).
 
-## Made on a Googlebook
+## About this project
 
-PDF Toolbox is developed on a Googlebook, an HP Googlebook 14, in the Googlebook's
+PDF Toolbox is my personal passion project, made on my own: it is not affiliated
+with, sponsored by or endorsed by my employer, and nothing here speaks for them. It
+isn't made or endorsed by the BentoPDF authors or by Google either.
+
+It is developed entirely on a Googlebook, an HP Googlebook 14, in the Googlebook's
 built-in Linux Terminal. Some of the fun parts:
 
 - **The Terminal's Debian builds everything:** BentoPDF's web app with Node.js and

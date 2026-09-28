@@ -24,7 +24,8 @@ tools/webapp.sh [--force]         # BentoPDF's air-gapped build, ~/.cache/pdf-to
 ./ptb release [--publish]         # release files; --publish tags and makes the GitHub release
 python3 tools/licenses.py         # notices (build.sh runs it; fails on unlisted engines)
 python3 tools/icon.py [--preview DIR]  # the icon's vector layers and docs/icon.svg
-python3 tools/testfiles.py        # test PDFs and a .docx in test/
+python3 tools/testfiles.py        # test PDFs, a .docx and the demo PDF in test/
+python3 tools/readme_images.py [capture]  # README screenshots: capture on the device, then compose
 python3 tools/survey.py [PAGE...]  # every PDF tool: compact layout, failed requests (devtools on)
 ```
 
