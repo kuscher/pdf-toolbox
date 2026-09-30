@@ -49,7 +49,8 @@ start it on TCP 5037.
   (owner io.github.kuscher.pdftoolbox); delete them when done (smoke.py does).
 - **Kill processes by PID**, not `pkill -f`.
 - **The release key never goes in git.** It is `~/.config/pdf-toolbox/keystore.jks`
-  with its password in `keystore.pass`; the maintainer has a backup. .gitignore
+  with its password in `keystore.pass` (a new key since 2026-09-30, alias `pdftoolbox`); the
+  maintainer has a backup in private storage (a private folder). .gitignore
   blocks `*.jks` and `*.pass`.
 - **Each release** bumps versionCode and versionName in AndroidManifest.xml,
   adds a CHANGELOG.md section, builds, runs `./ptb smoke`, commits, then
