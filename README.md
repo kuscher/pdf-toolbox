@@ -104,9 +104,10 @@ app next to it: once PDF Toolbox works, uninstall BentoBook. (Files you made sta
 your Download folder.)
 
 **Check the download** (optional): each [release](https://github.com/kuscher/pdf-toolbox/releases)
-lists the APK's SHA-256 checksum. Every release (and BentoBook 0.5 before it) is
+lists the APK's SHA-256 checksum. Releases after 0.6.1 are
 signed with the certificate whose SHA-256 fingerprint is
-`98:70:15:C8:99:04:BC:8B:22:F1:B7:90:3F:95:FF:29:D9:F9:8A:09:B6:99:4D:1F:12:F2:00:51:F3:DB:C3:D0`
+`01:ED:3C:81:45:A8:CB:8B:F8:99:59:79:4F:53:BD:74:01:E5:07:CF:6D:80:C0:C3:D2:D9:B6:EB:EF:AF:62:3E`
+(0.6.1 and earlier, and BentoBook 0.5, used an earlier key: `98:70:15:C8:…:DB:C3:D0`)
 (`apksigner verify --print-certs PDFToolbox.apk` shows it).
 
 **With adb** instead: `adb install PDFToolbox.apk`.
