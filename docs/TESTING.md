@@ -19,6 +19,32 @@ from the page or its workers. The app has no INTERNET permission, so a URL
 off the app's origin in that list is a missing offline file. Run it after
 updating BentoPDF.
 
+## Checked on the Acer Googlebook 14 (Intel, 2026-09-30)
+
+On the Acer Googlebook 14 (Intel Core Ultra 5 325, x86_64, Android 17, WebView 155.0.8059.16), with the
+0.6.1 release APK from GitHub, the same file the Arm Googlebooks get, and the tools in the
+sidebar's frame (825x975 px in the 881x975 px window, so the sidebar was folded into the rail).
+
+| Check | Result |
+| --- | --- |
+| Install (release APK, certificate SHA-256 98:70:15:C8:…:DB:C3:D0) | installs over nothing with `adb install`; the installed APK carries the same certificate; no INTERNET permission |
+| `./ptb smoke` | all six pass, with the HP's output sizes to the byte: Merge (1,319 bytes), Compress (759), PDF to Word (36,848), PDF/A (11,289), OCR (9,526), Word to PDF (10,110), 6 to 13 s each |
+| Merge PDF (pdf-lib, CoherentPDF; timed out in the x86_64 emulator's WebView 133) | passes, 7 s |
+| OCR (Tesseract, English; timed out in the x86_64 emulator's WebView 133) | passes, 9 s |
+| Word to PDF (LibreOffice with threads; skipped in the emulator: no cross-origin isolation in WebView 133) | `crossOriginIsolated` and SharedArrayBuffer true in the frame; passes, 13 s |
+| Layout survey (tools/survey.py) | 79 PDF tools: 76 fold into the compact header (Add Watermark, Edit Bookmarks and Edit PDF Text keep BentoPDF's layout, as on the HP), 74 end exactly at the frame's bottom, none is wider than the frame, no request failed. PDF to Text, Posterize and Scanner Effect scroll a little (1,023 to 1,183 px); on Scanner Effect that puts the button just below the frame (at 974 of 975 px), which the HP's list didn't have |
+| Excel to PDF, PowerPoint to PDF (LibreOffice) | work, with Word to PDF: tables and charts come through |
+| File picker, several files at once in Merge | works: both listed, one 2-page PDF saved, the saved bar shows |
+| Open with PDF Toolbox from Files; share a Word file to it | works when PDF Toolbox isn't running: the bar shows on the tool list and the next tool takes the file. **Not when it's already open**: `onNewIntent` offers the file to the tool in the frame at once, so a PDF lands in whatever PDF tool is showing (reproduced: Merge open, Open with, the file goes into Merge's list with no bar), and switching to the tool you wanted finds nothing (`incoming=0`). Fixed on the `open-with-while-open` branch |
+| Drag a PDF from Files onto a tool's drop area | works (Compress) |
+| Open and Show on the saved bar | both work |
+| Print from the Markdown to PDF editor | the dialog shows only the formatted document (the editor's button is **Export PDF**). **The sidebar doesn't come back when the dialog closes**: on the Acer the dialog hides the page and shows it again without a `focus` event, so the copy stays up until the next click (logged: `visibilitychange` hidden, then visible, no `focus`; `pointerdown` restores). Fixed on the `print-restore-sidebar` branch |
+| Back, window resize, the rail below 960 px | work |
+| Ctrl+K and Ctrl+B on the keyboard, with the focus in a tool too | work |
+| Live resize (`./ptb live-resize on`), also on Sign and Crop | works: in a new window the page follows the drag with no veil, and the drag uses `ResizeTaskPositioner` (with it off: `MultiDisplayVeiledResizeTaskPositioner`) |
+| OCR, a 60-page scanned PDF (200 dpi, 11.2 MB, no text layer) | 535 s through smoke.py's driver (about 9 s a page); peak PSS 136 MB for the app and 1,099 MB for its WebView renderer; MemAvailable never below 4,202 MB; 12,689,840 bytes out |
+| Compress, the same 60-page PDF | 23 s; 5,039,836 bytes (from 11,215,035) |
+
 ## Checked for 0.6 (2026-09-27)
 
 On the HP Googlebook 14 (Arm, Android 17, WebView 153.0.8010.39), with the
