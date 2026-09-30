@@ -170,11 +170,15 @@ up under it.
   `shouldOverrideUrlLoading` sees subframe navigations. "Open with" and "Share" have the sidebar page poke the tool
   (`__pdftoolbox.poke()`), which then asks for the files on its own channel.
 - **Printing:** Android prints a WebView's top page, not a frame. For the
-  Markdown editor's Print, the sidebar page puts a copy of the tool's page (its
-  stylesheets, print rules included, and its body) in place of the sidebar and
-  the frame, asks the app to print (the job is named after the tool), and
-  restores itself when the print dialog closes. The window caption keeps its
-  colour meanwhile.
+  Markdown editor's Export PDF, the sidebar page puts a copy of the tool's page
+  (its stylesheets, print rules included, and its body) in place of the sidebar
+  and the frame, asks the app to print (the job is named after the tool), and
+  restores itself when Android is done with the document: the app wraps
+  WebView's print adapter and calls `__pdftoolbox.printed(id)` from `onFinish`,
+  after Print or Cancel; the id names the print, so a late `onFinish` can't
+  take down a newer print's copy. A `focus` event can't be the signal: on a Googlebook
+  the dialog hides the page and shows it again without one. Focus and a click
+  still restore it too. The window caption keeps its colour meanwhile.
 - **Branding:** BentoPDF's own `VITE_BRAND_NAME` and `VITE_BRAND_LOGO`
   (tools/webapp.sh) put PDF Toolbox's name and icon where BentoPDF shows its
   own: the home page's title and the PDF Multi Tool's header.

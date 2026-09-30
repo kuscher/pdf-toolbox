@@ -85,8 +85,9 @@ tools in the sidebar's frame (1100x788 px in the 1359x876 px window).
 - [ ] Open a PDF with PDF Toolbox from Files; share a Word file to it.
 - [ ] Drag a PDF from Files onto a tool's drop area.
 - [ ] Open and Show on the saved bar.
-- [ ] Print from the Markdown to PDF editor: the print dialog shows only the
-      formatted document, and the sidebar comes back when it closes.
+- [ ] Export PDF in the Markdown to PDF editor (it prints): the print dialog
+      shows only the formatted document, and the sidebar comes back when it
+      closes, after Print and after Cancel, with no click.
 - [ ] Back gesture/key goes back to the previous tool; the window resizes
       cleanly, and below 960 px the sidebar folds into the rail.
 - [ ] Ctrl+K and Ctrl+B on the keyboard, with the focus in a tool too.
