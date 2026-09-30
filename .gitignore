@@ -1,6 +1,7 @@
 build/
 executables/
 *.apk
+*.aab
 *.idsig
 test/
 __pycache__/

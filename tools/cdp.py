@@ -25,7 +25,7 @@ import sys
 import time
 
 SERIAL = os.environ.get("ADB_SERIAL", "")  # ./ptb sets it
-PKG = os.environ.get("CDP_PKG", "local.pdftoolbox")
+PKG = os.environ.get("CDP_PKG", "io.github.kuscher.pdftoolbox")
 LOCAL = os.environ.get("CDP_SOCK") or os.path.join(
     os.environ.get("XDG_RUNTIME_DIR") or os.environ.get("TMPDIR") or "/tmp", f"pdftoolbox-devtools-{os.getuid()}.sock")
 

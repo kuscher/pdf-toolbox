@@ -33,7 +33,7 @@ import cdp  # noqa: E402
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEST = os.path.join(ROOT, "test")
 ORIGIN = "https://appassets.androidplatform.net"
-PKG = "local.pdftoolbox"
+PKG = "io.github.kuscher.pdftoolbox"
 A, B, DOCX = "PDF Toolbox Test A.pdf", "PDF Toolbox Test B.pdf", "PDF Toolbox Test Letter.docx"
 CHECKS = {
     # name: (page, input files, engines, output name suffix, button to press

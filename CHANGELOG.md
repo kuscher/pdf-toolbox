@@ -2,6 +2,14 @@
 
 PDF Toolbox was called BentoBook up to version 0.5.
 
+## Unreleased
+
+- **A permanent package name, `io.github.kuscher.pdftoolbox`**, in place of the
+  placeholder `local.pdftoolbox`, so PDF Toolbox can go to the Play Store. To
+  Android it is a new app: this version installs next to 0.6.1 instead of
+  updating it. Once it works, uninstall the old PDF Toolbox (files you made stay
+  in your Download folder).
+
 ## 0.6.1 (2026-09-28)
 
 - **About & licenses** now says what PDF Toolbox is: a personal passion

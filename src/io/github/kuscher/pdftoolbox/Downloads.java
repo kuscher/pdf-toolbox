@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-package local.pdftoolbox;
+package io.github.kuscher.pdftoolbox;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;

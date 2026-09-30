@@ -118,6 +118,11 @@ PDF Toolbox can't check for updates itself, as it has no internet permission.
 **PDFToolbox.apk** and install it the same way; it installs over the old version
 and keeps your settings. [What's new](CHANGELOG.md) lists the changes.
 
+**Coming from 0.6.1 or earlier?** Those versions had a placeholder package name,
+so the versions after them install as a new app next to the old PDF Toolbox
+instead of updating it. Once the new one works, uninstall the old one (files you
+made stay in your Download folder).
+
 ### Uninstall
 
 Like any app: press and hold (or right-click) PDF Toolbox in your apps and choose
@@ -171,10 +176,10 @@ edge as you drag. It takes one command from a computer with adb, with
 paired:
 
 ```sh
-adb shell am compat enable ENABLE_FLUID_RESIZING local.pdftoolbox
+adb shell am compat enable ENABLE_FLUID_RESIZING io.github.kuscher.pdftoolbox
 ```
 
-Then close and reopen PDF Toolbox. `am compat reset ENABLE_FLUID_RESIZING local.pdftoolbox`
+Then close and reopen PDF Toolbox. `am compat reset ENABLE_FLUID_RESIZING io.github.kuscher.pdftoolbox`
 undoes it. The setting stays when you update PDF Toolbox.
 
 ## Privacy
@@ -244,6 +249,9 @@ backup of the release key; lose it and existing installs can't be updated.
 **Releases.** `./ptb release` checks the APK (version, release key) and makes
 the release files: the APK, a source archive and checksums;
 `./ptb release --publish` tags the version and publishes it on GitHub.
+`tools/aab.sh` makes the Android App Bundle (`build/PDFToolbox.aab`) Google Play
+takes instead of the APK, signed with the same key; the app's package name is
+`io.github.kuscher.pdftoolbox`.
 
 **Testing on x86_64.** The [x86_64 workflow](.github/workflows/x86_64.yml)
 builds PDF Toolbox on an x86_64 machine and runs `tools/smoke.py` in Google's

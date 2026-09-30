@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-package local.pdftoolbox;
+package io.github.kuscher.pdftoolbox;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -511,7 +511,7 @@ public class MainActivity extends Activity {
   // ---- Debug commands, for testing over adb ----
 
   /**
-   * adb shell am broadcast -a local.pdftoolbox.DEBUG -p local.pdftoolbox --es cmd ...
+   * adb shell am broadcast -a io.github.kuscher.pdftoolbox.DEBUG -p io.github.kuscher.pdftoolbox --es cmd ...
    * Only the shell can send these: the receiver requires android.permission.DUMP,
    * which apps can't hold. ./ptb wraps them.
    */
@@ -560,7 +560,7 @@ public class MainActivity extends Activity {
         }
       }
     };
-    registerReceiver(debug, new IntentFilter("local.pdftoolbox.DEBUG"),
+    registerReceiver(debug, new IntentFilter("io.github.kuscher.pdftoolbox.DEBUG"),
         android.Manifest.permission.DUMP, null, Context.RECEIVER_EXPORTED);
   }
 }

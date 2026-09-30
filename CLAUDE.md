@@ -22,6 +22,7 @@ tools/webapp.sh [--force]         # BentoPDF's air-gapped build, ~/.cache/pdf-to
 ./ptb share                       # executables/PDFToolbox-<v>.apk to the Googlebook's Download
 ./ptb live-resize [on|off|status] # Android's per-app switch: live window resizing, no veil
 ./ptb release [--publish]         # release files; --publish tags and makes the GitHub release
+tools/aab.sh                      # build/PDFToolbox.aab for Google Play, after ./build.sh (release key to upload)
 python3 tools/licenses.py         # notices (build.sh runs it; fails on unlisted engines)
 python3 tools/icon.py [--preview DIR]  # the icon's vector layers and docs/icon.svg
 python3 tools/testfiles.py        # test PDFs, a .docx and the demo PDF in test/
@@ -38,10 +39,14 @@ start it on TCP 5037.
   served from the app's origin (tools/webapp.sh).
 - **No native code.** One APK serves x86_64 and Arm Googlebooks; build.sh
   refuses an APK with `lib/` or `.so` files.
+- **The package name stays `io.github.kuscher.pdftoolbox`.** Google Play and every
+  installed copy are keyed on it. Up to 0.6.1 it was the placeholder
+  `local.pdftoolbox`; those installs are a different app to Android and don't
+  update in place.
 - **Don't inject Android input.** Pickers, installs and permission dialogs
   belong to the user. JS in the app's own WebView over CDP is fine for tests.
 - **Clean up test files**: `./ptb incoming` and tool runs write to Download/
-  (owner local.pdftoolbox); delete them when done (smoke.py does).
+  (owner io.github.kuscher.pdftoolbox); delete them when done (smoke.py does).
 - **Kill processes by PID**, not `pkill -f`.
 - **The release key never goes in git.** It is `~/.config/pdf-toolbox/keystore.jks`
   with its password in `keystore.pass`; the maintainer has a backup. .gitignore
