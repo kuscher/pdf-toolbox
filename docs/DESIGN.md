@@ -167,8 +167,8 @@ up under it.
 - **The app's side:** the message channel takes messages from every frame of
   the app's origin (the tools live in a subframe, and replies go to the frame
   that asked). Links out of the app are handed to Android from the frame too:
-  `shouldOverrideUrlLoading` sees subframe navigations. "Open with" and "Share" have the sidebar page poke the tool
-  (`__pdftoolbox.poke()`), which then asks for the files on its own channel.
+  `shouldOverrideUrlLoading` sees subframe navigations. "Open with" and "Share" while the app is open have the sidebar page poke the tool
+  (`__pdftoolbox.poke()`), which then asks for the files on its own channel, marked `hold`.
 - **Printing:** Android prints a WebView's top page, not a frame. For the
   Markdown editor's Print, the sidebar page puts a copy of the tool's page (its
   stylesheets, print rules included, and its body) in place of the sidebar and
@@ -197,6 +197,11 @@ Injected at document start into every page of the app's origin, with a
   shim holds them as `File`s, shows a bar, and fills the first enabled file
   input whose `accept` matches (DataTransfer, then `input`/`change`
   events). The page answers `incoming.used` and the app forgets them.
+  Files that arrive while a tool is already open (`onNewIntent`) come with
+  `hold`: that page only shows the bar, with **Use here** when one of its
+  inputs accepts them, and the next tool opened takes them. Filling the open
+  tool at once put a PDF into whatever PDF tool was showing, and the tool
+  you then opened for it found nothing.
 - **Compact tool layout.** 106 of the 110 tool pages stack BentoPDF's
   sticky top bar (65 px), a title block and a 256 px drop zone above the
   file card and the tool, capped at 672 px wide, with viewers sized 75 to
