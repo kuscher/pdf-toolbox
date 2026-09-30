@@ -100,10 +100,16 @@
 
   // 5. Files opened with or shared to PDF Toolbox. Every tool is its own page,
   //    so the app keeps them and hands them to each page as it loads, until a
-  //    tool's file input takes them, exactly as if they had been picked.
+  //    tool's file input takes them, exactly as if they had been picked. Files
+  //    that come in while a tool is already open are held: the bar offers them
+  //    to this tool (Use here) and the next tool opened takes them.
   if (toolFrame) {
     let incoming = [];
     let current = null;
+    let hold = false;
+    // Between incoming.begin and incoming.end only part of the batch is here;
+    // using it then would tell the app to forget the rest.
+    let streaming = false;
     const accepts = (input, files) => {
       const accept = (input.getAttribute('accept') || '').split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
       if (!accept.length) return true;
@@ -111,10 +117,11 @@
         ? f.name.toLowerCase().endsWith(a)
         : a.endsWith('/*') ? f.type.startsWith(a.slice(0, -1)) : f.type === a));
     };
+    const target = () => [...document.querySelectorAll('input[type=file]')]
+      .find((i) => !i.disabled && accepts(i, incoming));
     const offer = () => {
-      if (!incoming.length) return;
-      const input = [...document.querySelectorAll('input[type=file]')]
-        .find((i) => !i.disabled && accepts(i, incoming));
+      if (streaming || !incoming.length) return;
+      const input = target();
       if (!input) return;
       const dt = new DataTransfer();
       for (const f of input.multiple ? incoming : incoming.slice(0, 1)) dt.items.add(f);
@@ -139,11 +146,15 @@
       const n = incoming.length;
       const text = document.createElement('span');
       text.textContent = `${n === 1 ? incoming[0].name : n + ' files'}: open a tool and ${n === 1 ? 'it goes' : 'they go'} straight in.`;
-      const dismiss = document.createElement('button');
-      dismiss.textContent = 'Dismiss';
-      dismiss.style.cssText = 'background:none;border:1px solid #6b7280;color:inherit;border-radius:6px;padding:2px 8px;cursor:pointer';
-      dismiss.onclick = () => { incoming = []; banner(); send({ type: 'incoming.used', count: 0 }); };
-      bar.replaceChildren(text, dismiss);
+      const button = (label, onclick) => {
+        const b = document.createElement('button');
+        b.textContent = label;
+        b.style.cssText = 'background:none;border:1px solid #6b7280;color:inherit;border-radius:6px;padding:2px 8px;cursor:pointer';
+        b.onclick = onclick;
+        return b;
+      };
+      const dismiss = button('Dismiss', () => { incoming = []; banner(); send({ type: 'incoming.used', count: 0 }); });
+      bar.replaceChildren(text, ...(hold && target() ? [button('Use here', offer)] : []), dismiss);
     };
     const finish = () => {
       if (current) incoming.push(new File(current.chunks, current.name, { type: current.mime }));
@@ -159,17 +170,21 @@
       if (m.type === 'incoming.begin') {
         incoming = [];
         current = null;
+        hold = m.hold === '1';
+        streaming = true;
+        banner();
       } else if (m.type === 'incoming.file') {
         finish();
         current = { name: m.name, mime: m.mime, chunks: [] };
       } else if (m.type === 'incoming.end') {
         finish();
+        streaming = false;
         banner();
-        offer();
+        if (!hold) offer();
       }
     });
     const watch = () => {
-      new MutationObserver(offer).observe(document.documentElement, { subtree: true, childList: true });
+      new MutationObserver(() => hold || offer()).observe(document.documentElement, { subtree: true, childList: true });
       send({ type: 'ready', isolated: self.crossOriginIsolated === true, sab: typeof SharedArrayBuffer === 'function' });
     };
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watch, { once: true });

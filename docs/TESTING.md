@@ -82,7 +82,9 @@ tools in the sidebar's frame (1100x788 px in the 1359x876 px window).
 ## For a person (not automatable here)
 
 - [ ] Pick files in the file picker; several at once in Merge.
-- [ ] Open a PDF with PDF Toolbox from Files; share a Word file to it.
+- [ ] Open a PDF with PDF Toolbox from Files; share a Word file to it. Both
+      again with PDF Toolbox already open on a PDF tool: the bar shows with
+      **Use here**, the open tool keeps its files, and the next tool takes it.
 - [ ] Drag a PDF from Files onto a tool's drop area.
 - [ ] Open and Show on the saved bar.
 - [ ] Print from the Markdown to PDF editor: the print dialog shows only the

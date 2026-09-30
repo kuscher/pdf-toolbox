@@ -380,10 +380,11 @@
     });
   };
 
-  // Hands waiting files ("Open with", "Share") to the tool in the frame: the
-  // app asks, and the tool's page answers with its own channel.
+  // Tells the tool in the frame that files are waiting ("Open with", "Share"
+  // while the app is open): the app asks, and the tool's page answers with its
+  // own channel. It holds them for the next tool rather than taking them.
   const poke = () => {
-    try { view.contentWindow.pdftoolbox.postMessage(JSON.stringify({ type: 'ready' })); } catch { /* no tool page yet */ }
+    try { view.contentWindow.pdftoolbox.postMessage(JSON.stringify({ type: 'ready', hold: true })); } catch { /* no tool page yet */ }
   };
 
   window.__pdftoolbox = { key, print: printTool, poke, open };

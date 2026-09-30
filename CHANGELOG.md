@@ -9,6 +9,9 @@ PDF Toolbox was called BentoBook up to version 0.5.
   Android it is a new app: this version installs next to 0.6.1 instead of
   updating it. Once it works, uninstall the old PDF Toolbox (files you made stay
   in your Download folder).
+- **Open with and Share while PDF Toolbox is open** no longer drop the file into
+  the tool on screen. The bar says the file is waiting, as when the app starts,
+  and the next tool you open takes it; **Use here** puts it into the open tool.
 
 ## 0.6.1 (2026-09-28)
 
