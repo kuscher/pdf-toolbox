@@ -654,7 +654,7 @@ texts are in [licenses/javascript-packages.txt](licenses/javascript-packages.txt
 How each component gets into the app, where its build scripts are, and notes from the license
 audit: obligations, and what couldn't be verified.
 
-### PDF Toolbox 0.7
+### PDF Toolbox 0.7.1
 
 - **Used for:** The Android app around BentoPDF: its window and sidebar, files, downloads and printing, the page script, these pages, and the scripts that build it
 
