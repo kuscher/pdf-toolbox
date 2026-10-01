@@ -2,6 +2,13 @@
 
 PDF Toolbox was called BentoBook up to version 0.5.
 
+## 0.7.1 (2026-10-01)
+
+- **On Google Play, PDF Toolbox is for Googlebooks only.** Play offers it to
+  devices that report themselves as a PC and run Android 14 or newer, which are
+  the Googlebooks. Nothing changes in the app, and the APK from GitHub still
+  installs anywhere.
+
 ## 0.7 (2026-09-30)
 
 - **Export PDF in the Markdown editor** brings the sidebar back as soon as the

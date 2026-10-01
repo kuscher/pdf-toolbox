@@ -36,7 +36,7 @@ feature graphic's indigo is the icon's box colour, #4F46E5.
    same key is the upload key.
 2. **Build the bundle** (Play only takes .aab files): `./build.sh && tools/aab.sh` → `build/PDFToolbox.aab`, signed
    with that key. The 0.7 bundle is built (188 MB, its certificate checked against the fingerprint above). Each
-   upload needs a higher version code than the last (`android:versionCode` in `AndroidManifest.xml`: 8 for 0.7).
+   upload needs a higher version code than the last (`android:versionCode` in `AndroidManifest.xml`: 9 for 0.7.1).
    From the next version on, pushing the version's tag builds, signs and uploads the bundle
    ([docs/RELEASING.md](../docs/RELEASING.md)); nobody needs the key file for it.
 3. **Closed test first** (personal developer account: 12 testers opted in for 14 days before production), with the
