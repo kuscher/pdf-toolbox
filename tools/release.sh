@@ -120,8 +120,8 @@ tar cf "$OUT/$TP.tar" -C "$TMP" "$TP"
 
 (cd "$OUT" && sha256sum PDFToolbox.apk "$NAME.tar.gz" "$TP.tar" > SHA256SUMS)
 apk_sha=$(cut -d' ' -f1 < <(sha256sum "$OUT/PDFToolbox.apk"))
-fingerprint=$(sed 's/../&:/g; s/:$//' <<< "${cert^^}")
-size=$(( $(stat -c %s "$OUT/PDFToolbox.apk") / 1000000 ))
+fingerprint=$(tr 'a-f' 'A-F' <<< "$cert" | sed 's/../&:/g; s/:$//')  # not ${cert^^}: macOS has bash 3.2
+size=$(( $(wc -c < "$OUT/PDFToolbox.apk") / 1000000 ))
 {
   awk -v v="$V" '$0 ~ "^## " v { on = 1; next } /^## / { on = 0 } on' CHANGELOG.md
   cat <<EOF
