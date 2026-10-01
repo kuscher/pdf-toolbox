@@ -14,6 +14,9 @@ release key and publishes it, so nobody needs the key on their machine.
    characters.
 4. Build and test: `./build.sh`, then `./ptb smoke` on a Googlebook. A build
    signed with the test key is fine for this.
+   The build rewrites `THIRD_PARTY_NOTICES.md` and
+   `licenses/javascript-packages.txt` with the new version: commit them too, or
+   the release run stops at "commit first" (it wants a clean checkout).
 5. Commit and push to `main`. The x86_64 workflow builds that commit and runs
    the smoke test in the emulator: wait for it.
 6. Tag the commit and push the tag:
