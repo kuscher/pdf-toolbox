@@ -2,7 +2,7 @@
 
 PDF Toolbox was called BentoBook up to version 0.5.
 
-## Unreleased
+## 0.7 (2026-09-30)
 
 - **Export PDF in the Markdown editor** brings the sidebar back as soon as the
   print dialog closes. On a Googlebook it stayed hidden until the next click.
