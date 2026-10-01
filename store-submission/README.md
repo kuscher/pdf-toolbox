@@ -1,7 +1,7 @@
 # Google Play submission kit
 
 Everything the Play Console asks for when publishing PDF Toolbox, ready to copy or upload (made on 30 September 2026,
-following StudioSnap's and HearOn Link's kits). The app is being created in the Play Console: io.github.kuscher.pdftoolbox,
+following StudioSnap's and HearOn Link's kits). The app is in the Play Console: io.github.kuscher.pdftoolbox,
 app id 4972784690780747764, developer account Fika Labs (7424304467248438473). Play App Signing uses the release key (01:ED:3C:81…, uploaded with PEPK); 0.7 (8) went to closed testing (Google Group googlebook-studio-testers@googlegroups.com, 178 countries) and was sent for review on 30 September 2026.
 
 ## What's here
