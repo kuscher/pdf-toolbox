@@ -313,18 +313,27 @@ THIRD_PARTY_NOTICES.md points to the exact upstream source of everything else.
 
 ## Signing and releases
 
-The release key is in `~/.config/pdf-toolbox` (`keystore.jks`, `keystore.pass`),
-never in the repository; without it build.sh signs with a test key. 0.1 to 0.4
-were signed with a key that was in the repository; it was taken out of the
-history and retired, so 0.5 can't update those installs.
+The release key is never in the repository. build.sh and tools/aab.sh look for
+it in `~/.config/pdf-toolbox` (`keystore.jks`, `keystore.pass`); without it they
+sign with a test key. 0.1 to 0.4 were signed with a key that was in the
+repository; it was taken out of the history and retired, so 0.5 can't update
+those installs.
+
+A release is a pushed tag (docs/RELEASING.md). The Release workflow
+(.github/workflows/release.yml) writes the key from the secrets of the GitHub
+environment `release` to that folder on the runner, builds the APK and the
+bundle without a cache, checks both certificates against the fingerprint it
+pins, runs tools/release.sh, publishes the files as the GitHub release and
+removes the key. A second job, which never sees the signing key, puts the bundle
+on Google Play's closed-testing track as a draft (tools/play-upload.mjs).
 
 `tools/release.sh` (`./ptb release [--publish]`) checks that build/PDFToolbox.apk
 has the manifest's version and the release key's certificate, then writes
 `PDFToolbox.apk` (the same name in every release, so
 `releases/latest/download/PDFToolbox.apk` is a stable link), the source archive,
 `SHA256SUMS` and the release notes (from CHANGELOG.md) to
-`executables/release-<version>/`, and with `--publish` tags the commit and
-makes the GitHub release.
+`executables/release-<version>/`. With `--publish`, on a machine that has the
+key, it also tags the commit and makes the GitHub release.
 
 ## The icon (tools/icon.py)
 

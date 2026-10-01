@@ -21,7 +21,8 @@ tools/webapp.sh [--force]         # BentoPDF's air-gapped build, ~/.cache/pdf-to
 ./ptb smoke [CHECK...]            # the engines end to end on the device (tools/smoke.py)
 ./ptb share                       # executables/PDFToolbox-<v>.apk to the Googlebook's Download
 ./ptb live-resize [on|off|status] # Android's per-app switch: live window resizing, no veil
-./ptb release [--publish]         # release files; --publish tags and makes the GitHub release
+git tag v<v> && git push origin v<v>  # the release: GitHub signs and publishes it (docs/RELEASING.md)
+./ptb release [--publish]         # the same by hand, on a machine that has the release key
 tools/aab.sh                      # build/PDFToolbox.aab for Google Play, after ./build.sh (release key to upload)
 python3 tools/licenses.py         # notices (build.sh runs it; fails on unlisted engines)
 python3 tools/icon.py [--preview DIR]  # the icon's vector layers and docs/icon.svg
@@ -48,13 +49,18 @@ start it on TCP 5037.
 - **Clean up test files**: `./ptb incoming` and tool runs write to Download/
   (owner io.github.kuscher.pdftoolbox); delete them when done (smoke.py does).
 - **Kill processes by PID**, not `pkill -f`.
-- **The release key never goes in git.** It is `~/.config/pdf-toolbox/keystore.jks`
-  with its password in `keystore.pass` (a new key since 2026-09-30, alias `pdftoolbox`); the
-  maintainer has a backup in private storage (a private folder). .gitignore
-  blocks `*.jks` and `*.pass`.
+- **The release key never goes in git.** GitHub signs the releases: the key
+  (a new key since 2026-09-30, alias `pdftoolbox`) is a secret of the repo's
+  `release` environment, and the maintainer has a backup in private storage (a private folder). You never need the key file: without
+  one in `~/.config/pdf-toolbox` (`keystore.jks`, `keystore.pass`) build.sh signs
+  with a test key, which is fine for testing. .gitignore blocks `*.jks` and `*.pass`.
 - **Each release** bumps versionCode and versionName in AndroidManifest.xml,
-  adds a CHANGELOG.md section, builds, runs `./ptb smoke`, commits, then
-  `./ptb release --publish`.
+  adds a CHANGELOG.md section, writes Play's "What's new"
+  (store-submission/listing/en-US/release-notes.txt, at most 500 characters),
+  builds, runs `./ptb smoke`, commits and pushes, then
+  `git tag v<version> && git push origin v<version>`. The tag makes the GitHub
+  release and a draft on Google Play's closed-testing track; sending it for
+  review stays a button in the Play Console. docs/RELEASING.md has the details.
 - **Licenses:** PDF Toolbox's own code is MIT; the APK is AGPL-3.0 as a whole
   (BentoPDF and several engines). Every component is in
   licenses/components.json with its texts; a new engine or font file in the

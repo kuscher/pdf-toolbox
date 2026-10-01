@@ -37,6 +37,8 @@ feature graphic's indigo is the icon's box colour, #4F46E5.
 2. **Build the bundle** (Play only takes .aab files): `./build.sh && tools/aab.sh` → `build/PDFToolbox.aab`, signed
    with that key. The 0.7 bundle is built (188 MB, its certificate checked against the fingerprint above). Each
    upload needs a higher version code than the last (`android:versionCode` in `AndroidManifest.xml`: 8 for 0.7).
+   From the next version on, pushing the version's tag builds, signs and uploads the bundle
+   ([docs/RELEASING.md](../docs/RELEASING.md)); nobody needs the key file for it.
 3. **Closed test first** (personal developer account: 12 testers opted in for 14 days before production), with the
    Google Group googlebook-studio-testers@googlegroups.com.
 4. **Store listing, store settings and App content:** fill them in from these files. The listing, graphics and contact
@@ -44,6 +46,7 @@ feature graphic's indigo is the icon's box colour, #4F46E5.
    ~/pdf-toolbox/store-submission https://github.com/kuscher/pdf-toolbox` in kuscher/googlebook-tech (without
    `--commit` it only validates).
 5. **Release:** add the bundle to the closed testing track, paste `release-notes.txt`, send for review. There are no
-   declarations or videos to file.
+   declarations or videos to file. A pushed tag does the first two: the bundle arrives on the closed testing track as
+   a draft with `release-notes.txt` as its "What's new". Sending it for review stays a button in the Play Console.
 6. **Once it's on Play:** the repo's README still says PDF Toolbox isn't in the Play Store (Install, and "Why isn't
    it in the Play Store?" under Questions); add the Play link there and on its googlebook.studio listing.

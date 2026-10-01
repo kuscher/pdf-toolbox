@@ -241,18 +241,23 @@ sudo apt install aapt zipalign apksigner default-jdk-headless git python3 curl
 developer commands for a Googlebook over adb (`./ptb app` builds, installs and
 opens it; `./ptb smoke` runs the main engines end to end).
 
-**Signing.** Release builds are signed with the release key, which is never in
-this repository: `build.sh` looks for `keystore.jks` and its password in
-`keystore.pass` in `~/.config/pdf-toolbox` (or `$PDFTOOLBOX_KEYS`). Without them it
-signs with a test key of its own, which is fine for trying a build, but such an
-APK can't update a PDF Toolbox installed from a release. The maintainer keeps a
-backup of the release key; lose it and existing installs can't be updated.
+**Signing.** Releases are signed with the release key, which is never in this
+repository. GitHub signs them: the key is a secret of the repository's `release`
+environment, which only `main` and version tags can use, and the maintainer
+keeps a backup of it; lose it and existing installs can't be updated. On your
+machine `build.sh` looks for `keystore.jks` and its password in `keystore.pass`
+in `~/.config/pdf-toolbox` (or `$PDFTOOLBOX_KEYS`). Without them it signs with a
+test key of its own, which is fine for trying a build, but such an APK can't
+update a PDF Toolbox installed from a release.
 
-**Releases.** `./ptb release` checks the APK (version, release key) and makes
-the release files: the APK, a source archive and checksums;
-`./ptb release --publish` tags the version and publishes it on GitHub.
-`tools/aab.sh` makes the Android App Bundle (`build/PDFToolbox.aab`) Google Play
-takes instead of the APK, signed with the same key; the app's package name is
+**Releases.** Pushing a tag (`git tag v0.8 && git push origin v0.8`) makes the
+release: the [Release workflow](.github/workflows/release.yml) builds and signs
+the APK and the Android App Bundle Google Play takes instead of it, publishes
+the APK, the source archives and checksums on GitHub, and puts the bundle on
+Google Play's closed-testing track as a draft, which someone then sends for
+review in the Play Console. [docs/RELEASING.md](docs/RELEASING.md) has the
+steps. On a machine that has the key, `./ptb release --publish` and
+`tools/aab.sh` still do the same by hand; the app's package name is
 `io.github.kuscher.pdftoolbox`.
 
 **Testing on x86_64.** The [x86_64 workflow](.github/workflows/x86_64.yml)
