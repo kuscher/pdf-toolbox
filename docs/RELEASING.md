@@ -84,9 +84,9 @@ On a machine that has the key in `~/.config/pdf-toolbox` (`keystore.jks`,
 tools/aab.sh                            # build/PDFToolbox.aab, to upload in the Play Console
 ```
 
-The tag it pushes starts the Release workflow too. That run stops at "Publish
-on GitHub", because the release is there already, and uploads nothing to Google
-Play: cancel it, or let it fail.
+The tag it pushes starts the Release workflow too. That run leaves the release
+you made as it is, and still builds the bundle and puts it on Google Play as a
+draft.
 
 ## If a run fails
 
