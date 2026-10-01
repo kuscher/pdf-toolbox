@@ -119,10 +119,14 @@ public class MainActivity extends Activity {
     offerToTool();
   }
 
-  /** Asks the tool in the sidebar page's frame to take the waiting files. */
+  /**
+   * Tells the tool in the sidebar page's frame that files are waiting. It shows
+   * the bar but keeps its own file input: the tool on screen when a file comes
+   * in is rarely the one it was meant for, and would use it up.
+   */
   private void offerToTool() {
     web.evaluateJavascript("window.__pdftoolbox ? window.__pdftoolbox.poke() : window.pdftoolbox"
-        + " && window.pdftoolbox.postMessage(JSON.stringify({type:'ready'}))", null);
+        + " && window.pdftoolbox.postMessage(JSON.stringify({type:'ready',hold:true}))", null);
   }
 
   @Override
@@ -167,11 +171,14 @@ public class MainActivity extends Activity {
     Log.i(TAG, "incoming: " + uris.size() + " file(s)");
   }
 
-  /** Streams the waiting files to the page that just loaded. */
-  private void offerIncoming(JavaScriptReplyProxy reply) {
+  /**
+   * Streams the waiting files to the page that just loaded, or, with hold, to
+   * the page that was already open, which then only offers them.
+   */
+  private void offerIncoming(JavaScriptReplyProxy reply, boolean hold) {
     if (incoming.isEmpty()) return;
     List<Uri> uris = new ArrayList<>(incoming);
-    reply.postMessage(json("type", "incoming.begin"));
+    reply.postMessage(hold ? json("type", "incoming.begin", "hold", "1") : json("type", "incoming.begin"));
     io.execute(() -> {
       for (Uri uri : uris) {
         String name = "file";
@@ -244,7 +251,7 @@ public class MainActivity extends Activity {
           Log.i(TAG, "page ready: crossOriginIsolated=" + m.optBoolean("isolated")
               + " SharedArrayBuffer=" + m.optBoolean("sab"));
         }
-        offerIncoming(reply);
+        offerIncoming(reply, m.optBoolean("hold"));
       }
       case "incoming.used" -> incoming.clear();
       case "print" -> print(m.optString("title", getString(R.string.app_name)));

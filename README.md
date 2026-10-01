@@ -155,7 +155,8 @@ Like any app: press and hold (or right-click) PDF Toolbox in your apps and choos
   them in from the Files app.
 - **From the Files app:** open a PDF with PDF Toolbox, or share any supported file
   (PDF, images, Word, Excel, PowerPoint, OpenDocument, EPUB, email) to it. A bar
-  says the file is waiting; open a tool and the file goes straight in.
+  says the file is waiting; open a tool and the file goes straight in. If a tool
+  is already open, **Use here** on the bar puts the file into that one.
 - **Once your file is in,** the tool's page folds its title and drop area into a
   slim header: the tool, your file, **Change file** (or **Add files**) and
   **Details**, which shows the folded part again. Editors (Sign, PDF
