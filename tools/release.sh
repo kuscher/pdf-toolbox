@@ -44,7 +44,7 @@ cert=$(apksigner verify --print-certs "$APK" | sed -n 's/.*certificate SHA-256 d
 want=$(keytool -list -v -keystore "$KEYS/keystore.jks" -storepass:file "$KEYS/keystore.pass" |
   sed -n 's/^[[:space:]]*SHA256: //p' | head -1 | tr -d ':' | tr 'A-F' 'a-f')
 [[ -n $cert && $cert == "$want" ]] || die "$APK isn't signed with the release key in $KEYS"
-[[ -z $(git status --porcelain) ]] || die "commit first: the source archive is made from HEAD"
+[[ -z $(git status --porcelain) ]] || die "commit first: the source archive is made from HEAD. Changed: $(git status --porcelain | head -5 | tr '\n' ' ')"
 grep -q "^## $V" CHANGELOG.md || die "CHANGELOG.md has no section for $V"
 [[ -d $CACHE/bentopdf-$BV ]] || die "no BentoPDF checkout in $CACHE: run ./build.sh"
 
