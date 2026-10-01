@@ -1,0 +1,28 @@
+PDF Toolbox puts more than 100 PDF tools in one desktop window on Android laptops. Pick a tool in the sidebar, add your file, and the tool runs on your device. There is no server, and the app has no permission to use the internet, so your files never leave your device.
+
+Organize
+Merge, split, reorder, rotate, delete and extract pages. The PDF Multi Tool does all of it on one grid of pages.
+
+Edit
+Click a paragraph and change its text. Annotate, highlight, redact, sign, fill in and create forms, crop, and add watermarks, page numbers, stamps and bookmarks.
+
+Convert
+Office documents (.docx, .xlsx, .pptx) and OpenDocument files to PDF, with an office suite that runs inside the app. PDF to documents, spreadsheets, text, Markdown and images. Images, EPUB, email and Markdown to PDF, and PDF/A for archiving.
+
+Clean up
+Make scanned PDFs searchable with text recognition (OCR), compress, remove blank pages, straighten scans, encrypt and decrypt, change permissions and remove metadata.
+
+Workflows
+Chain tools into a pipeline of your own with the Workflow Builder.
+
+Made for laptops
+Every tool is one click away in the sidebar, with your recent tools at the top. Ctrl+K searches the tools, and Ctrl+B folds the sidebar into a row of icons for more room. Open a PDF with PDF Toolbox from the Files app, or share files to it, and the next tool you open takes them. Results are saved to your Download folder.
+
+Private
+No internet permission, no accounts, no ads, no analytics and no crash reports. PDF Toolbox asks for no permissions: you choose each file it opens, and it saves its results to your Download folder.
+
+Limits
+Text recognition reads English. Trusted timestamps and certificate checks for digital signatures need the internet, so they don't work. Very large files can run out of memory. Converting office documents needs an up-to-date Android System WebView. The app takes about 200 MB, because its engines come with it.
+
+Free and open source
+PDF Toolbox is BentoPDF, the open-source PDF toolkit, made into an app for laptops. It is a personal passion project by Alexander Kuscher, developed on a Googlebook, and is not affiliated with or endorsed by any employer or by the toolkit's authors. Its own code is MIT-licensed; the app as a whole is under the GNU AGPL v3, and its complete source is at github.com/kuscher/pdf-toolbox. About & licenses in the app lists every component and its license.
