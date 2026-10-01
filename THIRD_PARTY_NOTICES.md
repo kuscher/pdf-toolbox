@@ -3,7 +3,7 @@
 <!-- Written by tools/licenses.py from licenses/components.json and BentoPDF's
      build; run it again after changing either. -->
 
-PDF Toolbox 0.7 is BentoPDF 2.8.8 in an Android app. PDF Toolbox's own code (this
+PDF Toolbox 0.7.1 is BentoPDF 2.8.8 in an Android app. PDF Toolbox's own code (this
 repository) is under the MIT License ([LICENSE](LICENSE)). The app it builds contains BentoPDF
 and several engines under the GNU Affero General Public License v3, so the app as a whole is
 distributed under the AGPL v3 ([licenses/texts/AGPL-3.0.txt](licenses/texts/AGPL-3.0.txt)).
@@ -42,7 +42,7 @@ libraries compiled into the engines, whose licenses ask for them next to the app
 
 | Component | Version | License | Copyright | Source |
 | --- | --- | --- | --- | --- |
-| PDF Toolbox | 0.7 | MIT ([MIT-PDFToolbox.txt](licenses/texts/MIT-PDFToolbox.txt)) | Copyright (c) 2026 the PDF Toolbox authors | https://github.com/kuscher/pdf-toolbox/tree/v0.7 |
+| PDF Toolbox | 0.7.1 | MIT ([MIT-PDFToolbox.txt](licenses/texts/MIT-PDFToolbox.txt)) | Copyright (c) 2026 the PDF Toolbox authors | https://github.com/kuscher/pdf-toolbox/tree/v0.7.1 |
 | BentoPDF | 2.8.8 | AGPL-3.0-only ([AGPL-3.0.txt](licenses/texts/AGPL-3.0.txt)) | Copyright © 2026 BentoPDF, the BentoPDF authors | https://github.com/alam00000/bentopdf/tree/f96cd4e5166f3d51393dfe9f3c440b5bb77802f1 |
 
 ## Engines
