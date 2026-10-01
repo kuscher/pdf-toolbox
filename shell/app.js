@@ -354,6 +354,9 @@
   // tool's page (its styles, with its own print rules, and its body) stands
   // in for the sidebar and the frame until the print dialog closes.
 
+  // The print in progress: its id comes back from the app with printed(), so
+  // a late onFinish from an earlier print can't take down a newer one's copy.
+  let printing = null;
   const printTool = () => {
     const doc = view.contentDocument;
     if (!doc || !doc.body) return;
@@ -369,12 +372,18 @@
       setTimeout(resolve, 3000);
     }));
     Promise.all(loaded).then(() => {
-      send({ type: 'print', title: document.title });
+      // The app calls printed(id) when Android is done with the document;
+      // focus and a click are fallbacks.
+      const id = crypto.randomUUID();
       const restore = () => {
         document.documentElement.classList.remove('printing');
         root.replaceChildren();
+        removeEventListener('focus', restore);
         removeEventListener('pointerdown', restore, true);
+        if (printing && printing.id === id) printing = null;
       };
+      printing = { id, restore };
+      send({ type: 'print', title: document.title, id });
       addEventListener('focus', restore, { once: true });
       addEventListener('pointerdown', restore, { once: true, capture: true });
     });
@@ -387,6 +396,6 @@
     try { view.contentWindow.pdftoolbox.postMessage(JSON.stringify({ type: 'ready', hold: true })); } catch { /* no tool page yet */ }
   };
 
-  window.__pdftoolbox = { key, print: printTool, poke, open };
+  window.__pdftoolbox = { key, print: printTool, printed: (id) => printing && printing.id === id && printing.restore(), poke, open };
   layout();
 })();

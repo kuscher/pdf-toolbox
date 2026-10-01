@@ -4,6 +4,8 @@ PDF Toolbox was called BentoBook up to version 0.5.
 
 ## Unreleased
 
+- **Export PDF in the Markdown editor** brings the sidebar back as soon as the
+  print dialog closes. On a Googlebook it stayed hidden until the next click.
 - **A permanent package name, `io.github.kuscher.pdftoolbox`**, in place of the
   placeholder `local.pdftoolbox`, so PDF Toolbox can go to the Play Store. To
   Android it is a new app: this version installs next to 0.6.1 instead of

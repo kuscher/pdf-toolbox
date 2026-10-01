@@ -17,7 +17,12 @@ import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.CancellationSignal;
 import android.os.Looper;
+import android.os.ParcelFileDescriptor;
+import android.print.PageRange;
+import android.print.PrintAttributes;
+import android.print.PrintDocumentAdapter;
 import android.print.PrintManager;
 import android.provider.OpenableColumns;
 import android.util.Log;
@@ -254,7 +259,7 @@ public class MainActivity extends Activity {
         offerIncoming(reply, m.optBoolean("hold"));
       }
       case "incoming.used" -> incoming.clear();
-      case "print" -> print(m.optString("title", getString(R.string.app_name)));
+      case "print" -> print(m.optString("title", getString(R.string.app_name)), m.optString("id"));
       // The frame moved to another tool: Back may have something to go back to.
       case "nav" -> updateBack();
       default -> { }
@@ -357,9 +362,42 @@ public class MainActivity extends Activity {
     return b;
   }
 
-  private void print(String title) {
+  private void print(String title, String id) {
     PrintManager pm = getSystemService(PrintManager.class);
-    pm.print(title, web.createPrintDocumentAdapter(title), null);
+    PrintDocumentAdapter page = web.createPrintDocumentAdapter(title);
+    // The sidebar page shows a copy of the tool while Android prints it. A
+    // focus event can't say when that's over: on a Googlebook the print dialog
+    // hides the page and shows it again without one. onFinish is Android saying
+    // it's done with the document, after Print or Cancel. The id names the
+    // print, and the WebView it came from (the renderer can be replaced).
+    WebView from = web;
+    pm.print(title, new PrintDocumentAdapter() {
+      @Override
+      public void onStart() {
+        page.onStart();
+      }
+
+      @Override
+      public void onLayout(PrintAttributes oldAttributes, PrintAttributes newAttributes,
+          CancellationSignal cancel, LayoutResultCallback callback, Bundle extras) {
+        page.onLayout(oldAttributes, newAttributes, cancel, callback, extras);
+      }
+
+      @Override
+      public void onWrite(PageRange[] pages, ParcelFileDescriptor destination,
+          CancellationSignal cancel, WriteResultCallback callback) {
+        page.onWrite(pages, destination, cancel, callback);
+      }
+
+      @Override
+      public void onFinish() {
+        page.onFinish();
+        if (from == web) {
+          from.evaluateJavascript("window.__pdftoolbox && window.__pdftoolbox.printed("
+              + JSONObject.quote(id) + ")", null);
+        }
+      }
+    }, null);
   }
 
   // ---- WebView clients ----
