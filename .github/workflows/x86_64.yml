@@ -3,8 +3,8 @@
 # Three of the five Googlebooks have Intel chips; PDF Toolbox is developed and
 # tested by hand on an Arm one. The APK has no native code, so it is the same
 # file on both: this checks that it builds on an x86_64 machine and that the
-# engines run on an x86_64 device. It signs with a throwaway test key; release
-# APKs are signed on the maintainer's machine (tools/release.sh).
+# engines run on an x86_64 device. It signs with a throwaway test key; the
+# Release workflow (release.yml) builds and signs the releases.
 name: x86_64
 
 on:
