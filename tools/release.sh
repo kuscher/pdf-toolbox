@@ -70,7 +70,8 @@ for tgz in sys.argv[2:]:
             r"package/((licen[cs]e|copying|readme|notice)[^/]*|package\.json|build_scripts/.*)$", m.name, re.I)]
         for m in keep:
             m.name = m.name[len("package/"):]
-        t.extractall(dest, members=keep, filter="data")
+        # filter= is Python 3.12+ (the Mac's python3 is 3.9); these are the build's own engine packages.
+        t.extractall(dest, members=keep, **({"filter": "data"} if hasattr(tarfile, "data_filter") else {}))
 PY
 cat > "$TMP/$NAME/README.md" <<EOF
 # PDF Toolbox $V: source
