@@ -17,10 +17,10 @@ offline, in a desktop window, and your files never leave your device.</p>
   <img src="https://img.shields.io/badge/Googlebooks-Intel_%26_Arm-4F6BED" alt="For Googlebooks, Intel and Arm">
   <img src="https://img.shields.io/badge/internet_permission-none-2E7D32" alt="No internet permission">
   <img src="https://img.shields.io/badge/license-MIT_%2F_AGPL--3.0-555555" alt="License: MIT; the app as a whole AGPL-3.0">
-  <img src="https://img.shields.io/badge/developed_entirely_on-a_Googlebook-E0407E" alt="Developed entirely on a Googlebook">
+  <img src="https://img.shields.io/badge/developed_on-a_Googlebook-E0407E" alt="Developed on a Googlebook">
 </p>
 
-<p align="center"><sub>A personal passion project by <a href="https://github.com/kuscher">Alexander Kuscher</a>, developed entirely on a Googlebook.
+<p align="center"><sub>A personal passion project by Fika Labs, developed on a Googlebook.
 Not affiliated with or endorsed by any employer (<a href="#about-this-project">more</a>).</sub></p>
 
 <p align="center">
@@ -271,7 +271,7 @@ PDF Toolbox is my personal passion project, made on my own: it is not affiliated
 with, sponsored by or endorsed by my employer, and nothing here speaks for them. It
 isn't made or endorsed by the BentoPDF authors or by Google either.
 
-It is developed entirely on a Googlebook, an HP Googlebook 14, in the Googlebook's
+It is developed on a Googlebook, an HP Googlebook 14, in the Googlebook's
 built-in Linux Terminal. Some of the fun parts:
 
 - **The Terminal's Debian builds everything:** BentoPDF's web app with Node.js and
