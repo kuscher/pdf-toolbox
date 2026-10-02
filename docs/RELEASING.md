@@ -73,7 +73,7 @@ signing key and the upload key. It is never in the repository:
   (`SIGNING_KEYSTORE_B64`, `SIGNING_KEYSTORE_PASS`). The Play key is the secret
   `PLAY_SERVICE_ACCOUNT_JSON` of the environment `play`. Both environments only
   serve `main` and `v*` tags, so pull requests and forks never get them.
-- The maintainer has a backup in a private folder.
+- The maintainer has a private backup, outside the repo.
 
 Agents and contributors never need the key file. The job that holds the key
 runs only GitHub's own actions, pinned to exact commits, and removes the key

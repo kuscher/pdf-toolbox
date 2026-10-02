@@ -51,7 +51,8 @@ start it on TCP 5037.
 - **Kill processes by PID**, not `pkill -f`.
 - **The release key never goes in git.** GitHub signs the releases: the key
   (a new key since 2026-09-30, alias `pdftoolbox`) is a secret of the repo's
-  `release` environment, and the maintainer has a backup in private storage (a private folder). You never need the key file: without
+  `release` environment, and the maintainer has a private backup
+  outside the repo. You never need the key file: without
   one in `~/.config/pdf-toolbox` (`keystore.jks`, `keystore.pass`) build.sh signs
   with a test key, which is fine for testing. .gitignore blocks `*.jks` and `*.pass`.
 - **Each release** bumps versionCode and versionName in AndroidManifest.xml,
