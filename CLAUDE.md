@@ -8,6 +8,11 @@ full-height frame. No native code, no Linux VM, no INTERNET permission. Called
 BentoBook up to 0.5. Read docs/DESIGN.md; the user guide is README.md.
 Development happens on an HP Googlebook 14 (Arm) over adb.
 
+## This repo is public
+The Play listing links here. Keep out of every file, commit message and release note: device serial numbers and
+adb names, build numbers and codenames, what else is installed or open on the owner's devices, the names of his
+private projects and paths into their repos, and where signing keys are backed up (say "backed up privately").
+
 ## Commands
 
 ```sh
