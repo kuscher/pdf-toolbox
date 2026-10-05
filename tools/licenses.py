@@ -286,6 +286,7 @@ def app_pages(out, info, comps, pkgs, attributions):
         "bentopdf_url": f"https://github.com/alam00000/bentopdf/tree/{info['bentopdf_commit']}",
         "source_url": source, "source_label": re.sub(r"^https://", "", source),
         "releases_url": info["repo"] + "/releases", "releases_label": re.sub(r"^https://", "", info["repo"]) + "/releases",
+        "issues_url": info["repo"] + "/issues", "issues_label": re.sub(r"^https://", "", info["repo"]) + "/issues",
         "component_count": str(len(comps) + len(pkgs)),
     }
     about = read(os.path.join(ROOT, "shell", "about.html"))

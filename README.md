@@ -267,8 +267,8 @@ emulator's software rendering).
 
 ## About this project
 
-PDF Toolbox is my personal passion project, made on my own: it is not affiliated
-with, sponsored by or endorsed by my employer, and nothing here speaks for them. It
+PDF Toolbox is a personal passion project by Fika Labs. It is not affiliated
+with, sponsored by or endorsed by any employer, and nothing here speaks for one. It
 isn't made or endorsed by the BentoPDF authors or by Google either.
 
 It is developed on a Googlebook, an HP Googlebook 14, in the Googlebook's

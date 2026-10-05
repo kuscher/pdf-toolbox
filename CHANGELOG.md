@@ -2,6 +2,14 @@
 
 PDF Toolbox was called BentoBook up to version 0.5.
 
+## 0.7.2 (2026-10-05)
+
+- **About & licenses** names Fika Labs, the name PDF Toolbox is published
+  under, links to the privacy policy, and says where to report a problem.
+- **Updates:** About says that Google Play keeps PDF Toolbox up to date when
+  it was installed from there. The APK on GitHub and the one from Google Play
+  have the same signature, so either updates the other.
+
 ## 0.7.1 (2026-10-01)
 
 - **On Google Play, PDF Toolbox is for Googlebooks only.** Play offers it to

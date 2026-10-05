@@ -1,4 +1,4 @@
-License texts of the 188 npm packages in PDF Toolbox 0.7.1's scripts
+License texts of the 188 npm packages in PDF Toolbox 0.7.2's scripts
 (written by tools/licenses.py)
 
 ==============================================================================
