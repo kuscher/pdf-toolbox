@@ -2,7 +2,7 @@
 
 Everything the Play Console asks for when publishing PDF Toolbox, ready to copy or upload (made on 30 September 2026,
 following StudioSnap's and HearOn Link's kits). The app is in the Play Console: io.github.kuscher.pdftoolbox,
-app id 4972784690780747764, developer account Fika Labs (7424304467248438473). Play App Signing uses the release key (01:ED:3C:81…, uploaded with PEPK); 0.7 (8) went to closed testing (Google Group googlebook-studio-testers@googlegroups.com, 178 countries) and was sent for review on 30 September 2026.
+app id 4972784690780747764, developer account Fika Labs (7424304467248438473). Play App Signing uses the release key (01:ED:3C:81…, uploaded with PEPK); 0.7 (8) went to closed testing (Google Group googlebook-studio-testers@googlegroups.com, 178 countries) and was sent for review on 30 September 2026. 0.7.2 (10) was sent for review on 5 October 2026 for closed testing and for production (all countries; Play offers it to Googlebooks only).
 
 ## What's here
 
@@ -14,7 +14,7 @@ app id 4972784690780747764, developer account Fika Labs (7424304467248438473). P
 | Release notes ("What's new") | [listing/en-US/release-notes.txt](listing/en-US/release-notes.txt) | 500 characters |
 | App icon | [graphics/icon-512.png](graphics/icon-512.png) | 512 × 512 PNG, full square (Play rounds the corners), drawn from the launcher icon's layers (`res/`, written by `tools/icon.py`) |
 | Feature graphic | [graphics/feature-graphic.png](graphics/feature-graphic.png) | 1024 × 500, 24-bit PNG |
-| Screenshots | [graphics/large-screen/](graphics/large-screen) (4) | 1920 × 1080 (16:9), 24-bit PNG. Used for phone, 7-inch, 10-inch and Chromebook |
+| Screenshots | [graphics/large-screen/](graphics/large-screen) (4) | 1920 × 1080 (16:9), 24-bit PNG. Used for phone, 7-inch, 10-inch and Desktop |
 | Store settings, contact, category | [forms/store-settings.md](forms/store-settings.md) | |
 | Privacy policy | https://googlebook.studio/privacy/pdf-toolbox | public, outside googlebook.studio's invite gate |
 | Data safety | [forms/data-safety.md](forms/data-safety.md) | "No data collected" |
@@ -36,7 +36,7 @@ feature graphic's indigo is the icon's box colour, #4F46E5.
    same key is the upload key.
 2. **Build the bundle** (Play only takes .aab files): `./build.sh && tools/aab.sh` → `build/PDFToolbox.aab`, signed
    with that key. The 0.7 bundle is built (188 MB, its certificate checked against the fingerprint above). Each
-   upload needs a higher version code than the last (`android:versionCode` in `AndroidManifest.xml`: 9 for 0.7.1).
+   upload needs a higher version code than the last (`android:versionCode` in `AndroidManifest.xml`: 10 for 0.7.2).
    From the next version on, pushing the version's tag builds, signs and uploads the bundle
    ([docs/RELEASING.md](../docs/RELEASING.md)); nobody needs the key file for it.
 3. **Closed test first** (personal developer account: 12 testers opted in for 14 days before production), with the
